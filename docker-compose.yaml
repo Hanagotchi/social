@@ -21,10 +21,11 @@ services:
       context: ./app/docker
       dockerfile: Dockerfile
     container_name: mongo
+    restart: always
     ports:
       - ${MONGO_PORT}:${MONGO_PORT}
     volumes:
-      - ~/apps/mongo:/data/db
+      - ./app/docker/init_publications.js:/docker-entrypoint-initdb.d/init_publications.js:ro # !!important, map the folder instead of the any actual file
     env_file:
       - .env
     healthcheck:
