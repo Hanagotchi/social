@@ -1,11 +1,12 @@
 import logging
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Body
 from app.controller.Social import SocialController
 from app.service.Social import SocialService
 
 from app.repository.SocialMongo import SocialMongoDB
 from app.schemas.Publication import (
     PublicationCreateSchema,
+    PublicationPartialUpdateSchema,
 )
 
 app = FastAPI(
@@ -47,3 +48,24 @@ async def create_publication(item: PublicationCreateSchema):
 @app.get("/publications/{id_publication}", tags=["Publications"])
 async def get_one_publication(req: Request, id_publication: str):
     return social_controller.handle_get_publication(id_publication)
+
+
+@app.patch(
+    "/publications/{id_publication}",
+    tags=["Publications"],
+)
+async def update_fields_in_publication(
+    id_publication: str,
+    publication_update_set: PublicationPartialUpdateSchema = Body(...),
+):
+    return social_controller.handle_update_publication(
+        id_publication, publication_update_set
+    )
+
+
+@app.delete(
+    "/publications/{id_publication}",
+    tags=["Publications"],
+)
+def delete_publication(id_publication: str):
+    return social_controller.handle_delete_publication(id_publication)

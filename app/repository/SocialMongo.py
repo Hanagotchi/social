@@ -55,8 +55,35 @@ class SocialMongoDB(SocialRepository):
 
     @withMongoExceptionsHandle()
     def update_publication(self, id_publication: str, content: Optional[str]):
-        pass
+        if not content:
+            return
+
+        result = self.publications_collection.update_one(
+            {"_id": ObjectId(id_publication)},
+            {"$set": {"content": content}},
+        )
+
+        if result.modified_count == 1:
+            self.publications_collection.update_one(
+                {"_id": ObjectId(id_publication)},
+                {
+                    "$set": {
+                        "updated_at": datetime.datetime.now(
+                            ZoneInfo("America/Argentina/Buenos_Aires")
+                        )
+                    }
+                },
+            )
 
     @withMongoExceptionsHandle()
     def delete_publication(self, id_received: str) -> int:
-        pass
+        """
+        Delete a publication by id and its logs
+        Args:
+            id_received (str): id of the publication to delete
+        Returns:
+            int: number of rows affected. 0 if no rows were affected
+        """
+        print(f"[REPOSITORY] delete {id_received}")
+        result = self.publications_collection.delete_one({"_id": ObjectId(id_received)})
+        return result.deleted_count

@@ -1,10 +1,12 @@
 import logging
+from typing import Optional
 from app.models.Publication import Publication
 from app.repository.SocialRepository import SocialRepository
 from app.service.Users import UserService
 from app.schemas.Publication import (
     PublicationCreateSchema,
     PublicationSchema,
+    PublicationPartialUpdateSchema,
 )
 from app.exceptions.NotFoundException import ItemNotFound
 
@@ -37,9 +39,30 @@ class SocialService:
         publication: Publication = self.social_repository.get_publication(
             id_publication
         )
-        # TODO: Este print hace que las publicaciones se parsen bien.
-        # No quitar a menos que se encuentre una mejor solucion.
         print(publication)
         if publication is None:
             raise ItemNotFound("Publication", id_publication)
         return PublicationSchema.model_validate(publication)
+
+    def update_publication(
+        self,
+        id_publication: str,
+        publication_update_set: PublicationPartialUpdateSchema,
+    ) -> Optional[PublicationSchema]:
+        try:
+            self.social_repository.update_publication(
+                id_publication, publication_update_set.content
+            )
+            updated_publication = self.social_repository.get_publication(id_publication)
+            return PublicationSchema.model_validate(updated_publication)
+        except Exception as err:
+            self.social_repository.rollback()
+            raise err
+
+    def delete_publication(self, id_publication: str):
+        try:
+            row_count = self.social_repository.delete_publication(id_publication)
+            return row_count
+        except Exception as err:
+            self.social_repository.rollback()
+            raise err
