@@ -1,0 +1,31 @@
+
+name: Linters
+
+on: 'push'
+
+jobs:
+  run-linters:
+    name: Run linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Install Python dependencies
+        run: pip install black flake8
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v1
+        with:
+          black: true
+
+      - name: flake8 Lint
+        uses: py-actions/flake8@v1.2.0
+        with:
+          max-line-length: "88"

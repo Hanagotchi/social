@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  social:
+    build:
+      context: .
+    container_name: social
+    env_file:
+      - .env
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+    tty: true
+
+  mongo:
+    build:
+      context: ./app/docker
+      dockerfile: Dockerfile
+    container_name: mongo
+    ports:
+      - ${MONGO_PORT}:${MONGO_PORT}
+    volumes:
+      - ~/apps/mongo:/data/db
+    env_file:
+      - .env
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok'
+      interval: 10s
+      timeout: 10s
+      retries: 10
