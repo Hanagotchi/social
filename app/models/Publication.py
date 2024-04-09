@@ -11,8 +11,9 @@ class Publication(Base):
     __collectionname__ = "publications"
 
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    id_user: int = Field(...)
+    author_user_id: int = Field(...)
     content: str = Field(..., max_length=512)
+    likes_count: int = Field(default=0)
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
 
@@ -23,7 +24,7 @@ class Publication(Base):
 
     def __repr__(self) -> str:
         return (
-            f"Publication(id={self.id!r}, id_user={self.id_user!r}, "
+            f"Publication(id={self.id!r}, author_user_id={self.author_user_id!r}, "
             f"content={self.content!r}), created_at={self.created_at!r}, "
             f"updated_at={self.updated_at!r}"
         )
@@ -31,7 +32,7 @@ class Publication(Base):
     @classmethod
     def from_pydantic(cls, pydantic_obj: PublicationCreateSchema):
         return Publication(
-            id_user=pydantic_obj.id_user,
+            author_user_id=pydantic_obj.author_user_id,
             content=pydantic_obj.content,
             created_at=None,
             updated_at=None,

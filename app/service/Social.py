@@ -22,7 +22,7 @@ class SocialService:
     async def create_publication(
         self, input_publication: PublicationCreateSchema
     ) -> PublicationSchema:
-        await UserService.check_existing_user(input_publication.id_user)
+        await UserService.check_existing_user(input_publication.author_user_id)
         try:
             publication = Publication.from_pydantic(input_publication)
             id_publication = self.social_repository.add_publication(publication)
@@ -31,7 +31,6 @@ class SocialService:
             )
             return PublicationSchema.model_validate(crated_publication)
         except Exception as err:
-            print(err)
             self.social_repository.rollback()
             raise err
 
@@ -39,7 +38,6 @@ class SocialService:
         publication: Publication = self.social_repository.get_publication(
             id_publication
         )
-        print(publication)
         if publication is None:
             raise ItemNotFound("Publication", id_publication)
         return PublicationSchema.model_validate(publication)
