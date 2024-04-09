@@ -27,7 +27,7 @@ services:
     ports:
       - ${MONGO_PORT}:${MONGO_PORT}
     volumes:
-      - ./app/docker/init_publications.js:/docker-entrypoint-initdb.d/init_publications.js:ro
+      - ./app/docker/init-mongodb.js:/docker-entrypoint-initdb.d/init-mongodb.js:ro
     env_file:
       - .env
     healthcheck:
