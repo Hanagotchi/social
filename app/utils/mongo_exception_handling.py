@@ -1,6 +1,8 @@
+import logging
 from app.exceptions.BadRequestException import BadRequestException
 from bson.errors import InvalidId
-import logging
+from pymongo.errors import PyMongoError
+from app.exceptions import InternalServerErrorException
 
 logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
@@ -12,31 +14,12 @@ def handle_common_errors(err):
         raise BadRequestException(
             detail=f"Invalid ID. {err}",
         )
-    # if isinstance(err, IntegrityError):
-    #     if isinstance(err.orig, UniqueViolation):
-    #         parsed_error = err.orig.pgerror.split("\n")
-    #         raise BadRequestException(
-    #             detail="Unique Violation: "
-    #             + f"{parsed_error[0]}. More detail: {parsed_error[1]}"
-    #         )
 
-    #     raise InternalServerErrorException(
-    #         detail=format(err),
-    #     )
+    if isinstance(err, PyMongoError):
+        raise InternalServerErrorException(
+            detail=f"Error in MongoDB: {err}",
+        )
 
-    # if isinstance(err, PendingRollbackError):
-    #     raise InternalServerErrorException(
-    #         detail=format(err),
-    #     )
-
-    # if isinstance(err, NoResultFound):
-    #     raise NotFoundException(
-    #         detail=format(err),
-    #     )
-
-    # raise InternalServerErrorException(
-    #     detail=format(err),
-    # )
     raise err
 
 
