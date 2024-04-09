@@ -1,7 +1,7 @@
 db = db.getSiblingDB('social_service');
-db.createCollection('publications');
+db.createCollection('posts');
 
-db.publications.insertMany([
+db.posts.insertMany([
   {
     "author_user_id": 1,
     "content": "Mi Primera Publicacion :D",

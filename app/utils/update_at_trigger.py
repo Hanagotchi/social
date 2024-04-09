@@ -22,15 +22,15 @@ def updatedAtTrigger(collection_name: str):
             result = func(*args, **kwargs)
 
             if result and result == 1:
-                id_publication = args[1]
+                id_post = args[1]
 
                 collection = (
-                    args[0].publications_collection
-                    if collection_name == "publications"
+                    args[0].posts_collection
+                    if collection_name == "posts"
                     else args[0].users_collection
                 )
                 collection.update_one(
-                    {"_id": ObjectId(id_publication)},
+                    {"_id": ObjectId(id_post)},
                     {
                         "$set": {
                             "updated_at": datetime.now(

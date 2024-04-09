@@ -4,9 +4,9 @@ from app.controller.Social import SocialController
 from app.service.Social import SocialService
 
 from app.repository.SocialMongo import SocialMongoDB
-from app.schemas.Publication import (
-    PublicationCreateSchema,
-    PublicationPartialUpdateSchema,
+from app.schemas.Post import (
+    PostCreateSchema,
+    PostPartialUpdateSchema,
 )
 
 app = FastAPI(
@@ -40,32 +40,32 @@ async def shutdown_db_client():
     app.logger.info("Postgres shutdown succesfully")
 
 
-@app.post("/publications", tags=["Publications"])
-async def create_publication(item: PublicationCreateSchema):
-    return await social_controller.handle_create_publication(item)
+@app.post("/posts", tags=["Posts"])
+async def create_post(item: PostCreateSchema):
+    return await social_controller.handle_create_post(item)
 
 
-@app.get("/publications/{id_publication}", tags=["Publications"])
-async def get_one_publication(req: Request, id_publication: str):
-    return social_controller.handle_get_publication(id_publication)
+@app.get("/posts/{id_post}", tags=["Posts"])
+async def get_one_post(req: Request, id_post: str):
+    return social_controller.handle_get_post(id_post)
 
 
 @app.patch(
-    "/publications/{id_publication}",
-    tags=["Publications"],
+    "/posts/{id_post}",
+    tags=["Posts"],
 )
-async def update_fields_in_publication(
-    id_publication: str,
-    publication_update_set: PublicationPartialUpdateSchema = Body(...),
+async def update_fields_in_post(
+    id_post: str,
+    post_update_set: PostPartialUpdateSchema = Body(...),
 ):
-    return social_controller.handle_update_publication(
-        id_publication, publication_update_set
+    return social_controller.handle_update_post(
+        id_post, post_update_set
     )
 
 
 @app.delete(
-    "/publications/{id_publication}",
-    tags=["Publications"],
+    "/posts/{id_post}",
+    tags=["Posts"],
 )
-def delete_publication(id_publication: str):
-    return social_controller.handle_delete_publication(id_publication)
+def delete_post(id_post: str):
+    return social_controller.handle_delete_post(id_post)

@@ -5,7 +5,7 @@ import pymongo
 from dotenv import load_dotenv
 from os import environ
 from app.models.base import Base
-from app.models.Publication import Publication
+from app.models.Post import Post
 from typing import Optional
 from app.repository.SocialRepository import SocialRepository
 from app.exceptions.NotFoundException import ItemNotFound
@@ -21,7 +21,7 @@ class SocialMongoDB(SocialRepository):
 
     def __init__(self):
         self.database = self.client["social_service"]
-        self.publications_collection = self.database["publications"]
+        self.posts_collection = self.database["posts"]
         self.users_collection = self.database["users"]
 
     def shutdown(self):
@@ -34,35 +34,35 @@ class SocialMongoDB(SocialRepository):
         self.database.drop_collection(table.__collectionname__)
 
     @withMongoExceptionsHandle()
-    def add_publication(self, record: Base) -> Optional[str]:
+    def add_post(self, record: Base) -> Optional[str]:
         now = datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")).isoformat()[:-6]
         record_dump = record.model_dump(by_alias=True, exclude=["id"])
         record_dump["created_at"] = now
         record_dump["updated_at"] = now
-        result = self.publications_collection.insert_one(record_dump)
+        result = self.posts_collection.insert_one(record_dump)
         if result.inserted_id:
             return str(result.inserted_id)
 
     @withMongoExceptionsHandle()
-    def get_publication(self, id_publication: str) -> Publication:
-        result = self.publications_collection.find_one(
-            {"_id": ObjectId(id_publication)}
+    def get_post(self, id_post: str) -> Post:
+        result = self.posts_collection.find_one(
+            {"_id": ObjectId(id_post)}
         )
         if result is None:
-            raise ItemNotFound("Publication", id_publication)
+            raise ItemNotFound("Post", id_post)
 
         result["id"] = str(result["_id"])
         return result
 
-    @updatedAtTrigger(collection_name="publications")
+    @updatedAtTrigger(collection_name="posts")
     @withMongoExceptionsHandle()
-    def update_publication(
-        self, id_publication: str, content: Optional[str]
+    def update_post(
+        self, id_post: str, content: Optional[str]
     ) -> Optional[int]:
         """
-        Delete a publication by id and its logs
+        Delete a post by id and its logs
         Args:
-            id_publication (str): id of the publication to update
+            id_post (str): id of the post to update
             content (str): new content to update
         Returns:
             int: number of rows affected. 0 if no rows were affected
@@ -74,20 +74,20 @@ class SocialMongoDB(SocialRepository):
         if not content:
             return
 
-        result = self.publications_collection.update_one(
-            {"_id": ObjectId(id_publication)},
+        result = self.posts_collection.update_one(
+            {"_id": ObjectId(id_post)},
             {"$set": {"content": content}},
         )
         return result.modified_count
 
     @withMongoExceptionsHandle()
-    def delete_publication(self, id_received: str) -> int:
+    def delete_post(self, id_received: str) -> int:
         """
-        Delete a publication by id and its logs
+        Delete a post by id and its logs
         Args:
-            id_received (str): id of the publication to delete
+            id_received (str): id of the post to delete
         Returns:
             int: number of rows affected. 0 if no rows were affected
         """
-        result = self.publications_collection.delete_one({"_id": ObjectId(id_received)})
+        result = self.posts_collection.delete_one({"_id": ObjectId(id_received)})
         return result.deleted_count
