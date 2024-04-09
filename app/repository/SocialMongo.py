@@ -54,7 +54,7 @@ class SocialMongoDB(SocialRepository):
         result["id"] = str(result["_id"])
         return result
 
-    @updateAtTrigger()
+    @updateAtTrigger(collection_name="publications")
     @withMongoExceptionsHandle()
     def update_publication(
         self, id_publication: str, content: Optional[str]
@@ -68,7 +68,8 @@ class SocialMongoDB(SocialRepository):
             int: number of rows affected. 0 if no rows were affected
         Decorators:
             - withMongoExceptionsHandle: Decorator to handle exceptions from MongoDB
-            - updateAtTrigger: Decorator to update the updated_at field in the publication!
+            - updateAtTrigger: Decorator to update
+            the updated_at!!
         """
         if not content:
             return
@@ -88,6 +89,5 @@ class SocialMongoDB(SocialRepository):
         Returns:
             int: number of rows affected. 0 if no rows were affected
         """
-        print(f"[REPOSITORY] delete {id_received}")
         result = self.publications_collection.delete_one({"_id": ObjectId(id_received)})
         return result.deleted_count
