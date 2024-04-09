@@ -33,7 +33,7 @@ class SocialMongoDB(SocialRepository):
         self.database.drop_collection(table.__collectionname__)
 
     @withMongoExceptionsHandle()
-    def post_publication(self, record: Base) -> Optional[str]:
+    def add_publication(self, record: Base) -> Optional[str]:
         now = datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")).isoformat()[:-6]
         record_dump = record.model_dump(by_alias=True, exclude=["id"])
         record_dump["created_at"] = now

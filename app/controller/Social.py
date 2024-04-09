@@ -13,10 +13,10 @@ class SocialController:
     def __init__(self, social_service: SocialService):
         self.social_service = social_service
 
-    async def handle_post_publication(
+    async def handle_create_publication(
         self, input_publication: PublicationCreateSchema
     ) -> JSONResponse:
-        publication: PublicationSchema = await self.social_service.post_publication(
+        publication: PublicationSchema = await self.social_service.create_publication(
             input_publication
         )
         return JSONResponse(
