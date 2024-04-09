@@ -3,12 +3,12 @@ from typing import Optional
 from bson import ObjectId
 from pydantic import Field
 from app.models.base import Base, PyObjectId
-from app.schemas.Publication import PublicationCreateSchema
+from app.schemas.Post import PostCreateSchema
 from datetime import datetime
 
 
-class Publication(Base):
-    __collectionname__ = "publications"
+class Post(Base):
+    __collectionname__ = "posts"
 
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     author_user_id: int = Field(...)
@@ -24,14 +24,14 @@ class Publication(Base):
 
     def __repr__(self) -> str:
         return (
-            f"Publication(id={self.id!r}, author_user_id={self.author_user_id!r}, "
+            f"Post(id={self.id!r}, author_user_id={self.author_user_id!r}, "
             f"content={self.content!r}), created_at={self.created_at!r}, "
             f"updated_at={self.updated_at!r}"
         )
 
     @classmethod
-    def from_pydantic(cls, pydantic_obj: PublicationCreateSchema):
-        return Publication(
+    def from_pydantic(cls, pydantic_obj: PostCreateSchema):
+        return Post(
             author_user_id=pydantic_obj.author_user_id,
             content=pydantic_obj.content,
             created_at=None,

@@ -4,8 +4,8 @@ from app.controller.Social import SocialController
 from app.service.Social import SocialService
 
 from app.repository.SocialMongo import SocialMongoDB
-from app.schemas.Publication import (
-    PublicationCreateSchema,
+from app.schemas.Post import (
+    PostCreateSchema,
 )
 
 app = FastAPI(
@@ -39,11 +39,11 @@ async def shutdown_db_client():
     app.logger.info("Postgres shutdown succesfully")
 
 
-@app.post("/publications", tags=["Publications"])
-async def create_publication(item: PublicationCreateSchema):
-    return await social_controller.handle_create_publication(item)
+@app.post("/posts", tags=["Posts"])
+async def create_post(item: PostCreateSchema):
+    return await social_controller.handle_create_post(item)
 
 
-@app.get("/publications/{id_publication}", tags=["Publications"])
-async def get_one_publication(req: Request, id_publication: str):
-    return social_controller.handle_get_publication(id_publication)
+@app.get("/posts/{id_post}", tags=["Posts"])
+async def get_one_post(req: Request, id_post: str):
+    return social_controller.handle_get_post(id_post)

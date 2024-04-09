@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 
 
-class PublicationCreateSchema(BaseModel):
+class PostCreateSchema(BaseModel):
     author_user_id: int = Field(..., example=1)
     content: str = Field(..., max_length=512)
 
@@ -20,7 +20,7 @@ class PublicationCreateSchema(BaseModel):
         }
 
 
-class PublicationSchema(BaseModel):
+class PostSchema(BaseModel):
     id: str = Field(...)
     author_user_id: int = Field(..., example=1)
     content: str = Field(..., max_length=512)
@@ -46,7 +46,7 @@ class PublicationSchema(BaseModel):
         }
 
 
-class PublicationPartialUpdateSchema(BaseModel):
+class PostPartialUpdateSchema(BaseModel):
     content: Optional[str] = Field(None)
 
     class Config:

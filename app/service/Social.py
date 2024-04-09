@@ -1,10 +1,10 @@
 import logging
-from app.models.Publication import Publication
+from app.models.Post import Post
 from app.repository.SocialRepository import SocialRepository
 from app.service.Users import UserService
-from app.schemas.Publication import (
-    PublicationCreateSchema,
-    PublicationSchema,
+from app.schemas.Post import (
+    PostCreateSchema,
+    PostSchema,
 )
 from app.exceptions.NotFoundException import ItemNotFound
 
@@ -17,25 +17,19 @@ class SocialService:
     def __init__(self, social_repository: SocialRepository):
         self.social_repository = social_repository
 
-    async def create_publication(
-        self, input_publication: PublicationCreateSchema
-    ) -> PublicationSchema:
-        await UserService.check_existing_user(input_publication.author_user_id)
+    async def create_post(self, input_post: PostCreateSchema) -> PostSchema:
+        await UserService.check_existing_user(input_post.author_user_id)
         try:
-            publication = Publication.from_pydantic(input_publication)
-            id_publication = self.social_repository.add_publication(publication)
-            crated_publication: Publication = self.social_repository.get_publication(
-                id_publication
-            )
-            return PublicationSchema.model_validate(crated_publication)
+            post = Post.from_pydantic(input_post)
+            id_post = self.social_repository.add_post(post)
+            crated_post: Post = self.social_repository.get_post(id_post)
+            return PostSchema.model_validate(crated_post)
         except Exception as err:
             self.social_repository.rollback()
             raise err
 
-    def get_publication(self, id_publication: int) -> PublicationSchema:
-        publication: Publication = self.social_repository.get_publication(
-            id_publication
-        )
-        if publication is None:
-            raise ItemNotFound("Publication", id_publication)
-        return PublicationSchema.model_validate(publication)
+    def get_post(self, id_post: int) -> PostSchema:
+        post: Post = self.social_repository.get_post(id_post)
+        if post is None:
+            raise ItemNotFound("Post", id_post)
+        return PostSchema.model_validate(post)

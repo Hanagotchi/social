@@ -10,21 +10,21 @@ class SocialRepository(ABC):
         pass
 
     @abstractmethod
-    def add_publication(self, record: Base) -> Optional[str]:
+    def add_post(self, record: Base) -> Optional[str]:
         pass
 
     @abstractmethod
-    def get_publication(self, id_received: int) -> Base:
+    def get_post(self, id_received: int) -> Base:
         pass
 
     @abstractmethod
-    def update_publication(
+    def update_post(
         self,
-        id_publication: str,
+        id_post: str,
         content: Optional[str],
     ):
         pass
 
     @abstractmethod
-    def delete_publication(self, id_received: str) -> int:
+    def delete_post(self, id_received: str) -> int:
         pass
