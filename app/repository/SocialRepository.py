@@ -10,7 +10,7 @@ class SocialRepository(ABC):
         pass
 
     @abstractmethod
-    def add_publication(self, record: Base) -> Optional[str]:
+    def post_publication(self, record: Base) -> Optional[str]:
         pass
 
     @abstractmethod

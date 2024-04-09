@@ -40,8 +40,8 @@ async def shutdown_db_client():
 
 
 @app.post("/publications", tags=["Publications"])
-async def create_publication(item: PublicationCreateSchema):
-    return await social_controller.handle_create_publication(item)
+async def post_publication(item: PublicationCreateSchema):
+    return await social_controller.handle_post_publication(item)
 
 
 @app.get("/publications/{id_publication}", tags=["Publications"])

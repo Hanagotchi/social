@@ -17,13 +17,13 @@ class SocialService:
     def __init__(self, social_repository: SocialRepository):
         self.social_repository = social_repository
 
-    async def create_publication(
+    async def post_publication(
         self, input_publication: PublicationCreateSchema
     ) -> PublicationSchema:
         await UserService.check_existing_user(input_publication.author_user_id)
         try:
             publication = Publication.from_pydantic(input_publication)
-            id_publication = self.social_repository.add_publication(publication)
+            id_publication = self.social_repository.post_publication(publication)
             crated_publication: Publication = self.social_repository.get_publication(
                 id_publication
             )
