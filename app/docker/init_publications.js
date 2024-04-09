@@ -3,15 +3,15 @@ db.createCollection('publications');
 
 db.publications.insertMany([
   {
-    "id_user": 1,
+    "author_user_id": 1,
     "content": "Mi Primera Publicacion :D",
-    "created_at": "2024-04-08T05:14:02.641Z",
-    "updated_at": "2024-04-08T05:14:02.641Z"
+    "created_at": "2024-04-08T23:18:38.196248",
+    "updated_at": "2024-04-08T23:18:38.196248"
   },
   {
-    "id_user": 1,
+    "author_user_id": 1,
     "content": "Ya soy influenceeeer",
-    "created_at": "2024-04-09T05:14:02.641Z",
-    "updated_at": "2024-04-09T05:14:02.641Z"
+    "created_at": "2024-04-10T15:11:18.196248",
+    "created_at": "2024-04-10T15:11:18.196248"
   }
 ]);

@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from zoneinfo import ZoneInfo
 from bson import ObjectId
 import pymongo
@@ -34,7 +34,7 @@ class SocialMongoDB(SocialRepository):
 
     @withMongoExceptionsHandle()
     def add_publication(self, record: Base) -> Optional[str]:
-        now = datetime.datetime.now(ZoneInfo("America/Argentina/Buenos_Aires"))
+        now = datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")).isoformat()[:-6]
         record_dump = record.model_dump(by_alias=True, exclude=["id"])
         record_dump["created_at"] = now
         record_dump["updated_at"] = now

@@ -18,16 +18,16 @@ class UserService:
             return response.raise_for_status()
 
     @staticmethod
-    async def check_existing_user(id_user: int) -> Response:
+    async def check_existing_user(author_user_id: int) -> Response:
         try:
-            response = await UserService.get(f"/users/{id_user}")
+            response = await UserService.get(f"/users/{author_user_id}")
             if response.status_code == 200:
                 return
             else:
-                raise ItemNotFound("User", id_user)
+                raise ItemNotFound("User", author_user_id)
         except HTTPStatusError as e:
             if e.response.status_code == 404:
-                raise ItemNotFound("User", id_user)
+                raise ItemNotFound("User", author_user_id)
             else:
                 raise InternalServerErrorException("User service")
         except Exception:
