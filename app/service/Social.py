@@ -29,7 +29,6 @@ class SocialService:
             )
             return PublicationSchema.model_validate(crated_publication)
         except Exception as err:
-            print(err)
             self.social_repository.rollback()
             raise err
 
@@ -37,9 +36,6 @@ class SocialService:
         publication: Publication = self.social_repository.get_publication(
             id_publication
         )
-        # TODO: Este print hace que las publicaciones se parsen bien.
-        # No quitar a menos que se encuentre una mejor solucion.
-        print(publication)
         if publication is None:
             raise ItemNotFound("Publication", id_publication)
         return PublicationSchema.model_validate(publication)

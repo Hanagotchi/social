@@ -1,6 +1,6 @@
 import logging
 from app.exceptions.BadRequestException import BadRequestException
-from bson.errors import InvalidId
+from bson.errors import BSONError, InvalidId
 from pymongo.errors import PyMongoError
 from app.exceptions import InternalServerErrorException
 
@@ -10,9 +10,14 @@ logger.setLevel("DEBUG")
 
 def handle_common_errors(err):
     logger.error(format(err))
-    if isinstance(err, InvalidId):
-        raise BadRequestException(
-            detail=f"Invalid ID. {err}",
+    if isinstance(err, BSONError):
+        if isinstance(err, InvalidId):
+            raise BadRequestException(
+                detail=f"Invalid ID. {err}",
+            )
+
+        raise InternalServerErrorException(
+            detail=f"Error in BSON: {err}",
         )
 
     if isinstance(err, PyMongoError):
