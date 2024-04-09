@@ -31,7 +31,6 @@ class SocialService:
             )
             return PostSchema.model_validate(crated_post)
         except Exception as err:
-            self.social_repository.rollback()
             raise err
 
     def get_post(self, id_post: int) -> PostSchema:
@@ -54,7 +53,6 @@ class SocialService:
             updated_post = self.social_repository.get_post(id_post)
             return PostSchema.model_validate(updated_post)
         except Exception as err:
-            self.social_repository.rollback()
             raise err
 
     def delete_post(self, id_post: str):
@@ -62,5 +60,4 @@ class SocialService:
             row_count = self.social_repository.delete_post(id_post)
             return row_count
         except Exception as err:
-            self.social_repository.rollback()
             raise err

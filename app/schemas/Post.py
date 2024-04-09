@@ -47,7 +47,7 @@ class PostSchema(BaseModel):
 
 
 class PostPartialUpdateSchema(BaseModel):
-    content: Optional[str] = Field(None)
+    content: Optional[str] = Field(None, max_length=512)
 
     class Config:
         json_schema_extra = {
