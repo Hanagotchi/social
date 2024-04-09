@@ -22,7 +22,7 @@ class SocialRepository(ABC):
         self,
         id_publication: str,
         content: Optional[str],
-    ):
+    ) -> Optional[int]:
         pass
 
     @abstractmethod

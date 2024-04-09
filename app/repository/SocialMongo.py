@@ -10,6 +10,7 @@ from typing import Optional
 from app.repository.SocialRepository import SocialRepository
 from app.exceptions.NotFoundException import ItemNotFound
 from app.utils.mongo_exception_handling import withMongoExceptionsHandle
+from app.utils.update_at_trigger import updateAtTrigger
 
 load_dotenv()
 
@@ -53,8 +54,22 @@ class SocialMongoDB(SocialRepository):
         result["id"] = str(result["_id"])
         return result
 
+    @updateAtTrigger()
     @withMongoExceptionsHandle()
-    def update_publication(self, id_publication: str, content: Optional[str]):
+    def update_publication(
+        self, id_publication: str, content: Optional[str]
+    ) -> Optional[int]:
+        """
+        Delete a publication by id and its logs
+        Args:
+            id_publication (str): id of the publication to update
+            content (str): new content to update
+        Returns:
+            int: number of rows affected. 0 if no rows were affected
+        Decorators:
+            - withMongoExceptionsHandle: Decorator to handle exceptions from MongoDB
+            - updateAtTrigger: Decorator to update the updated_at field in the publication!
+        """
         if not content:
             return
 
@@ -62,18 +77,7 @@ class SocialMongoDB(SocialRepository):
             {"_id": ObjectId(id_publication)},
             {"$set": {"content": content}},
         )
-
-        if result.modified_count == 1:
-            self.publications_collection.update_one(
-                {"_id": ObjectId(id_publication)},
-                {
-                    "$set": {
-                        "updated_at": datetime.datetime.now(
-                            ZoneInfo("America/Argentina/Buenos_Aires")
-                        )
-                    }
-                },
-            )
+        return result.modified_count
 
     @withMongoExceptionsHandle()
     def delete_publication(self, id_received: str) -> int:
