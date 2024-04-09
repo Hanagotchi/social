@@ -13,6 +13,7 @@ class Publication(Base):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     author_user_id: int = Field(...)
     content: str = Field(..., max_length=512)
+    likes_count: int = Field(default=0)
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
 

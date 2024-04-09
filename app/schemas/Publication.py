@@ -24,6 +24,7 @@ class PublicationSchema(BaseModel):
     id: str = Field(...)
     author_user_id: int = Field(..., example=1)
     content: str = Field(..., max_length=512)
+    likes_count: int = Field(default=0)
     author_user_id: int
     created_at: datetime
     updated_at: datetime
@@ -38,6 +39,7 @@ class PublicationSchema(BaseModel):
                     "Crece, crece y crece, "
                     "y en verano me da mandarinas."
                 ),
+                "likes_count": 0,
                 "created_at": "2021-08-08T20:00:00",
                 "updated_at": "2021-08-08T20:00:00",
             }
