@@ -10,7 +10,7 @@ from typing import Optional
 from app.repository.SocialRepository import SocialRepository
 from app.exceptions.NotFoundException import ItemNotFound
 from app.utils.mongo_exception_handling import withMongoExceptionsHandle
-from app.utils.update_at_trigger import updateAtTrigger
+from app.utils.update_at_trigger import updatedAtTrigger
 
 load_dotenv()
 
@@ -54,7 +54,7 @@ class SocialMongoDB(SocialRepository):
         result["id"] = str(result["_id"])
         return result
 
-    @updateAtTrigger(collection_name="publications")
+    @updatedAtTrigger(collection_name="publications")
     @withMongoExceptionsHandle()
     def update_publication(
         self, id_publication: str, content: Optional[str]
@@ -68,7 +68,7 @@ class SocialMongoDB(SocialRepository):
             int: number of rows affected. 0 if no rows were affected
         Decorators:
             - withMongoExceptionsHandle: Decorator to handle exceptions from MongoDB
-            - updateAtTrigger: Decorator to update
+            - updatedAtTrigger: Decorator to update
             the updated_at!!
         """
         if not content:

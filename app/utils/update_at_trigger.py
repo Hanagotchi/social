@@ -8,7 +8,7 @@ logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
 
 
-def updateAtTrigger(collection_name: str):
+def updatedAtTrigger(collection_name: str):
     """
     Decorator to update the updated_at field of a document
     in the database when a function is called and returns 1 (success update).
