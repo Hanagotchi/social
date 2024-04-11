@@ -3,6 +3,7 @@ from httpx import AsyncClient, HTTPStatusError, Response
 from os import environ
 from app.exceptions.InternalServerErrorException import InternalServerErrorException
 from app.exceptions.NotFoundException import ItemNotFound
+from app.schemas.User import GetUserSchema
 
 logger = logging.getLogger("users")
 logger.setLevel("DEBUG")
@@ -18,11 +19,12 @@ class UserService:
             return response.raise_for_status()
 
     @staticmethod
-    async def check_existing_user(author_user_id: int) -> Response:
+    async def get_user(author_user_id: int) -> GetUserSchema:
         try:
             response = await UserService.get(f"/users/{author_user_id}")
             if response.status_code == 200:
-                return
+                user = response.json()["message"]
+                return GetUserSchema(**user)
             else:
                 raise ItemNotFound("User", author_user_id)
         except HTTPStatusError as e:

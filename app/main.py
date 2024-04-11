@@ -46,4 +46,4 @@ async def create_post(item: PostCreateSchema):
 
 @app.get("/posts/{id_post}", tags=["Posts"])
 async def get_one_post(req: Request, id_post: str):
-    return social_controller.handle_get_post(id_post)
+    return await social_controller.handle_get_post(id_post)
