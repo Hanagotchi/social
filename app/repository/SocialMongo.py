@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from zoneinfo import ZoneInfo
 from bson import ObjectId
 import pymongo
@@ -54,12 +55,12 @@ class SocialMongoDB(SocialRepository):
 
     @updatedAtTrigger(collection_name="posts")
     @withMongoExceptionsHandle()
-    def update_post(self, id_post: str, content: Optional[str]) -> Optional[int]:
+    def update_post(self, id_post: str, update_post_set: str) -> Optional[int]:
         """
         Delete a post by id and its logs
         Args:
             id_post (str): id of the post to update
-            content (str): new content to update
+            update_post_set (str): json string with the fields to update
         Returns:
             int: number of rows affected. 0 if no rows were affected
         Decorators:
@@ -67,12 +68,11 @@ class SocialMongoDB(SocialRepository):
             - updatedAtTrigger: Decorator to update
             the updated_at!!
         """
-        if not content:
+        if not update_post_set:
             return
 
         result = self.posts_collection.update_one(
-            {"_id": ObjectId(id_post)},
-            {"$set": {"content": content}},
+            {"_id": ObjectId(id_post)}, {"$set": json.loads(update_post_set)}
         )
         return result.modified_count
 

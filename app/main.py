@@ -40,29 +40,29 @@ async def shutdown_db_client():
     app.logger.info("Postgres shutdown succesfully")
 
 
-@app.post("/posts", tags=["Posts"])
+@app.post("/social/posts", tags=["Posts"])
 async def create_post(item: PostCreateSchema):
     return await social_controller.handle_create_post(item)
 
 
-@app.get("/posts/{id_post}", tags=["Posts"])
+@app.get("/social/posts/{id_post}", tags=["Posts"])
 async def get_one_post(req: Request, id_post: str):
-    return social_controller.handle_get_post(id_post)
+    return await social_controller.handle_get_post(id_post)
 
 
 @app.patch(
-    "/posts/{id_post}",
+    "/social/posts/{id_post}",
     tags=["Posts"],
 )
 async def update_fields_in_post(
     id_post: str,
-    post_update_set: PostPartialUpdateSchema = Body(...),
+    update_post_set: PostPartialUpdateSchema = Body(...),
 ):
-    return social_controller.handle_update_post(id_post, post_update_set)
+    return await social_controller.handle_update_post(id_post, update_post_set)
 
 
 @app.delete(
-    "/posts/{id_post}",
+    "/social/posts/{id_post}",
     tags=["Posts"],
 )
 def delete_post(id_post: str):

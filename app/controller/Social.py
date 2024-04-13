@@ -21,19 +21,19 @@ class SocialController:
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(post)
         )
 
-    def handle_get_post(self, id_post: str) -> JSONResponse:
-        post: PostSchema = self.social_service.get_post(id_post)
+    async def handle_get_post(self, id_post: str) -> JSONResponse:
+        post: PostSchema = await self.social_service.get_post(id_post)
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(post)
         )
 
-    def handle_update_post(
+    async def handle_update_post(
         self,
         id_post: str,
-        post_update_set: PostPartialUpdateSchema,
+        update_post_set: PostPartialUpdateSchema,
     ) -> JSONResponse:
-        post: Optional[PostSchema] = self.social_service.update_post(
-            id_post, post_update_set
+        post: Optional[PostSchema] = await self.social_service.update_post(
+            id_post, update_post_set
         )
 
         if post:

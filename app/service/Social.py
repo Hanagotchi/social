@@ -1,7 +1,5 @@
 import logging
 from typing import Optional
-import re
-
 from app.models.Post import Post
 from app.repository.SocialRepository import SocialRepository
 from app.service.Users import UserService
@@ -11,7 +9,6 @@ from app.schemas.Post import (
     PostPartialUpdateSchema,
 )
 from app.exceptions.NotFoundException import ItemNotFound
-from app.exceptions import BadRequestException
 from app.schemas.User import GetUserSchema, User
 
 logger = logging.getLogger("app")
@@ -24,7 +21,6 @@ class SocialService:
         self.social_repository = social_repository
 
     async def create_post(self, input_post: PostCreateSchema) -> PostSchema:
-        check_valid_photo_links(input_post)
         get_user: GetUserSchema = await UserService.get_user(input_post.author_user_id)
         user: User = User.from_pydantic(get_user)
         try:
@@ -46,15 +42,16 @@ class SocialService:
         map_author_user_id(user, post)
         return PostSchema.model_validate(post)
 
-    def update_post(
+    async def update_post(
         self,
         id_post: str,
-        post_update_set: PostPartialUpdateSchema,
+        update_post_set: PostPartialUpdateSchema,
     ) -> Optional[PostSchema]:
         try:
-            self.social_repository.update_post(id_post, post_update_set.content)
-            updated_post = self.social_repository.get_post(id_post)
-            return PostSchema.model_validate(updated_post)
+            self.social_repository.update_post(
+                id_post, update_post_set.model_dump_json(exclude_none=True)
+            )
+            return await self.get_post(id_post)
         except Exception as err:
             raise err
 
@@ -64,17 +61,6 @@ class SocialService:
             return row_count
         except Exception as err:
             raise err
-
-
-def check_valid_photo_links(input_post):
-    if input_post.photo_links:
-        for photo_link in input_post.photo_links:
-            if not re.match(
-                r"^https?://(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}"
-                r"(?:/[^/#?]+)+(?:\?.*)?$",
-                photo_link,
-            ):
-                raise BadRequestException("Invalid photo URL")
 
 
 def map_author_user_id(user, crated_post):
