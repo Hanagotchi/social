@@ -58,9 +58,7 @@ async def update_fields_in_post(
     id_post: str,
     post_update_set: PostPartialUpdateSchema = Body(...),
 ):
-    return social_controller.handle_update_post(
-        id_post, post_update_set
-    )
+    return social_controller.handle_update_post(id_post, post_update_set)
 
 
 @app.delete(

@@ -52,9 +52,7 @@ class SocialService:
         post_update_set: PostPartialUpdateSchema,
     ) -> Optional[PostSchema]:
         try:
-            self.social_repository.update_post(
-                id_post, post_update_set.content
-            )
+            self.social_repository.update_post(id_post, post_update_set.content)
             updated_post = self.social_repository.get_post(id_post)
             return PostSchema.model_validate(updated_post)
         except Exception as err:
@@ -66,7 +64,7 @@ class SocialService:
             return row_count
         except Exception as err:
             raise err
-   
+
 
 def check_valid_photo_links(input_post):
     if input_post.photo_links:

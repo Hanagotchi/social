@@ -45,9 +45,7 @@ class SocialMongoDB(SocialRepository):
 
     @withMongoExceptionsHandle()
     def get_post(self, id_post: str) -> Post:
-        result = self.posts_collection.find_one(
-            {"_id": ObjectId(id_post)}
-        )
+        result = self.posts_collection.find_one({"_id": ObjectId(id_post)})
         if result is None:
             raise ItemNotFound("Post", id_post)
 
@@ -56,9 +54,7 @@ class SocialMongoDB(SocialRepository):
 
     @updatedAtTrigger(collection_name="posts")
     @withMongoExceptionsHandle()
-    def update_post(
-        self, id_post: str, content: Optional[str]
-    ) -> Optional[int]:
+    def update_post(self, id_post: str, content: Optional[str]) -> Optional[int]:
         """
         Delete a post by id and its logs
         Args:
