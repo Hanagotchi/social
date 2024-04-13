@@ -10,7 +10,8 @@ logger.setLevel("DEBUG")
 
 USERS_SERVICE_URL = environ["USERS_SERVICE_URL"]
 
-# Heroku dyno plan has a limit of 30 seconds... so, assign 3 retries of 10 seconds each :)
+# Heroku dyno plan has a limit of 30 seconds...
+# so, assign 3 retries of 10 seconds each :)
 # https://devcenter.heroku.com/articles/request-timeout
 NUMBER_OF_RETRIES = 3
 TIMEOUT = 10
