@@ -1,6 +1,7 @@
 from typing import Optional
 from app.schemas.Post import (
     PostCreateSchema,
+    PostPagination,
     PostPartialUpdateSchema,
     PostSchema,
 )
@@ -54,4 +55,12 @@ class SocialController:
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content="Post deleted successfully",
+        )
+
+    async def handle_get_my_feed(
+        self, id_user: str, pagination: PostPagination
+    ) -> JSONResponse:
+        list = await self.social_service.get_my_feed(id_user, pagination)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK, content=jsonable_encoder(list)
         )

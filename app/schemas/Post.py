@@ -1,7 +1,8 @@
+from zoneinfo import ZoneInfo
 from pydantic import BaseModel, Field, AfterValidator, HttpUrl
 from typing import Annotated, Optional
-from datetime import datetime
 from app.schemas import User
+from datetime import datetime
 
 PhotoUrl = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
 
@@ -57,6 +58,12 @@ class PostSchema(BaseModel):
                 ],
             }
         }
+        # datetime.now(
+        #                         ZoneInfo("America/Argentina/Buenos_Aires")
+        #                     ).isoformat()[:-6]
+        # json_encoders = {datetime: lambda v: datetime.now(
+        #                         ZoneInfo("America/Argentina/Buenos_Aires")
+        #                     ).isoformat()[:-6]}
 
 
 class PostPartialUpdateSchema(BaseModel):
@@ -77,3 +84,15 @@ class PostPartialUpdateSchema(BaseModel):
                 ],
             }
         }
+
+
+class PostPagination(BaseModel):
+    time_offset: datetime
+    page: int
+    per_page: int
+
+
+class PostFilters(BaseModel):
+    pagination: PostPagination
+    following: Optional[list[int]]
+    tags: Optional[str] = Field(..., min_length=2, max_length=128)

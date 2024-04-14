@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import List, Optional
 from app.models.base import Base
+from app.schemas.Post import PostFilters
 
 
 class SocialRepository(ABC):
@@ -15,6 +16,10 @@ class SocialRepository(ABC):
 
     @abstractmethod
     def get_post(self, id_received: int) -> Base:
+        pass
+
+    @abstractmethod
+    def get_posts_by(self, filters: PostFilters) -> List[Base]:
         pass
 
     @abstractmethod

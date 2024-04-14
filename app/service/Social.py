@@ -5,6 +5,8 @@ from app.repository.SocialRepository import SocialRepository
 from app.service.Users import UserService
 from app.schemas.Post import (
     PostCreateSchema,
+    PostFilters,
+    PostPagination,
     PostSchema,
     PostPartialUpdateSchema,
 )
@@ -61,6 +63,17 @@ class SocialService:
             return row_count
         except Exception as err:
             raise err
+
+    async def get_my_feed(self, id_user: str, pagination: PostPagination):
+        user: GetUserSchema = await UserService.get_user(id_user)
+        print(f"[USER]: {user}")
+        following = [1, 2, 3, 4, 5]
+        tags = "AR"
+        filters = PostFilters(pagination=pagination, following=following, tags=tags)
+        print(f"[FILTERS]: {filters}")
+        posts = self.social_repository.get_posts_by(filters)
+        for post in posts:
+            print(f"[POST]: {post}")
 
 
 def map_author_user_id(user, crated_post):

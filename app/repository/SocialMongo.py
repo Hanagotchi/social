@@ -1,17 +1,17 @@
 from datetime import datetime
 import json
-from zoneinfo import ZoneInfo
 from bson import ObjectId
 import pymongo
 from dotenv import load_dotenv
 from os import environ
 from app.models.base import Base
 from app.models.Post import Post
-from typing import Optional
+from typing import List, Optional
 from app.repository.SocialRepository import SocialRepository
 from app.exceptions.NotFoundException import ItemNotFound
 from app.utils.mongo_exception_handling import withMongoExceptionsHandle
 from app.utils.update_at_trigger import updatedAtTrigger
+from app.schemas.Post import PostFilters
 
 load_dotenv()
 
@@ -36,7 +36,7 @@ class SocialMongoDB(SocialRepository):
 
     @withMongoExceptionsHandle()
     def add_post(self, record: Base) -> Optional[str]:
-        now = datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")).isoformat()[:-6]
+        now = datetime.now()
         record_dump = record.model_dump(by_alias=True, exclude=["id"])
         record_dump["created_at"] = now
         record_dump["updated_at"] = now
@@ -87,3 +87,20 @@ class SocialMongoDB(SocialRepository):
         """
         result = self.posts_collection.delete_one({"_id": ObjectId(id_received)})
         return result.deleted_count
+
+    @withMongoExceptionsHandle()
+    def get_posts_by(self, filters: PostFilters) -> List[Post]:
+        pipeline = [
+            {"$match": {"updated_at": {"$lte": filters.pagination.time_offset}}}
+        ]
+        if filters.tags:
+            pipeline.append({"$match": {"tags": filters.tags}})
+        if filters.following:
+            pipeline.append({"$match": {"author_user_id": {"$in": filters.following}}})
+        pipeline += [
+            {"$sort": {"updated_at": -1}},  # sort by updated_at desc
+            {"$skip": (filters.pagination.page - 1) * filters.pagination.per_page},
+            {"$limit": filters.pagination.per_page},
+        ]
+
+        return list(self.posts_collection.aggregate(pipeline))

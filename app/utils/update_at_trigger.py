@@ -1,7 +1,6 @@
 from datetime import datetime
 from functools import wraps
 import logging
-from zoneinfo import ZoneInfo
 from bson import ObjectId
 
 logger = logging.getLogger("app")
@@ -31,13 +30,7 @@ def updatedAtTrigger(collection_name: str):
                 )
                 collection.update_one(
                     {"_id": ObjectId(id_post)},
-                    {
-                        "$set": {
-                            "updated_at": datetime.now(
-                                ZoneInfo("America/Argentina/Buenos_Aires")
-                            ).isoformat()[:-6]
-                        }
-                    },
+                    {"$set": {"updated_at": datetime.now()}},
                 )
 
             return result
