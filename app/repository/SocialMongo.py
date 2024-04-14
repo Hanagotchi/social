@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from zoneinfo import ZoneInfo
 from bson import ObjectId
 import pymongo
@@ -10,6 +11,7 @@ from typing import Optional
 from app.repository.SocialRepository import SocialRepository
 from app.exceptions.NotFoundException import ItemNotFound
 from app.utils.mongo_exception_handling import withMongoExceptionsHandle
+from app.utils.update_at_trigger import updatedAtTrigger
 
 load_dotenv()
 
@@ -51,10 +53,37 @@ class SocialMongoDB(SocialRepository):
         result["id"] = str(result["_id"])
         return result
 
+    @updatedAtTrigger(collection_name="posts")
     @withMongoExceptionsHandle()
-    def update_post(self, id_post: str, content: Optional[str]):
-        pass
+    def update_post(self, id_post: str, update_post_set: str) -> Optional[int]:
+        """
+        Delete a post by id and its logs
+        Args:
+            id_post (str): id of the post to update
+            update_post_set (str): json string with the fields to update
+        Returns:
+            int: number of rows affected. 0 if no rows were affected
+        Decorators:
+            - withMongoExceptionsHandle: Decorator to handle exceptions from MongoDB
+            - updatedAtTrigger: Decorator to update
+            the updated_at!!
+        """
+        if not update_post_set:
+            return
+
+        result = self.posts_collection.update_one(
+            {"_id": ObjectId(id_post)}, {"$set": json.loads(update_post_set)}
+        )
+        return result.modified_count
 
     @withMongoExceptionsHandle()
     def delete_post(self, id_received: str) -> int:
-        pass
+        """
+        Delete a post by id and its logs
+        Args:
+            id_received (str): id of the post to delete
+        Returns:
+            int: number of rows affected. 0 if no rows were affected
+        """
+        result = self.posts_collection.delete_one({"_id": ObjectId(id_received)})
+        return result.deleted_count

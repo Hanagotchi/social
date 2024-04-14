@@ -1,14 +1,15 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, AfterValidator, HttpUrl
+from typing import Annotated, Optional
 from datetime import datetime
-
 from app.schemas import User
+
+PhotoUrl = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
 
 
 class PostCreateSchema(BaseModel):
     author_user_id: int = Field(..., example=1)
     content: str = Field(..., max_length=512)
-    photo_links: Optional[list[str]] = None
+    photo_links: Optional[list[PhotoUrl]] = None
 
     class Config:
         json_schema_extra = {
@@ -34,7 +35,7 @@ class PostSchema(BaseModel):
     likes_count: int = Field(default=0)
     created_at: datetime
     updated_at: datetime
-    photo_links: Optional[list[str]] = None
+    photo_links: Optional[list[PhotoUrl]] = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -59,7 +60,8 @@ class PostSchema(BaseModel):
 
 
 class PostPartialUpdateSchema(BaseModel):
-    content: Optional[str] = Field(None)
+    content: Optional[str] = Field(None, max_length=512)
+    photo_links: Optional[list[PhotoUrl]] = None
 
     class Config:
         json_schema_extra = {
@@ -69,5 +71,9 @@ class PostPartialUpdateSchema(BaseModel):
                     "Crece, crece y crece, "
                     "y en verano me da mandarinas."
                 ),
+                "photo_links": [
+                    "https://example.com/photo5520.jpg",
+                    "https://example.com/photo123.jpg",
+                ],
             }
         }

@@ -1,11 +1,12 @@
 import logging
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Body
 from app.controller.Social import SocialController
 from app.service.Social import SocialService
 
 from app.repository.SocialMongo import SocialMongoDB
 from app.schemas.Post import (
     PostCreateSchema,
+    PostPartialUpdateSchema,
 )
 
 app = FastAPI(
@@ -39,11 +40,30 @@ async def shutdown_db_client():
     app.logger.info("Postgres shutdown succesfully")
 
 
-@app.post("/posts", tags=["Posts"])
+@app.post("/social/posts", tags=["Posts"])
 async def create_post(item: PostCreateSchema):
     return await social_controller.handle_create_post(item)
 
 
-@app.get("/posts/{id_post}", tags=["Posts"])
+@app.get("/social/posts/{id_post}", tags=["Posts"])
 async def get_one_post(req: Request, id_post: str):
     return await social_controller.handle_get_post(id_post)
+
+
+@app.patch(
+    "/social/posts/{id_post}",
+    tags=["Posts"],
+)
+async def update_fields_in_post(
+    id_post: str,
+    update_post_set: PostPartialUpdateSchema = Body(...),
+):
+    return await social_controller.handle_update_post(id_post, update_post_set)
+
+
+@app.delete(
+    "/social/posts/{id_post}",
+    tags=["Posts"],
+)
+def delete_post(id_post: str):
+    return social_controller.handle_delete_post(id_post)

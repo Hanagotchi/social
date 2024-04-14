@@ -1,5 +1,5 @@
 import logging
-from httpx import AsyncClient, HTTPStatusError, Response
+from httpx import AsyncClient, HTTPStatusError, Response, AsyncHTTPTransport
 from os import environ
 from app.exceptions.InternalServerErrorException import InternalServerErrorException
 from app.exceptions.NotFoundException import ItemNotFound
@@ -10,13 +10,21 @@ logger.setLevel("DEBUG")
 
 USERS_SERVICE_URL = environ["USERS_SERVICE_URL"]
 
+# Heroku dyno plan has a limit of 30 seconds...
+# so, assign 3 retries of 10 seconds each :)
+# https://devcenter.heroku.com/articles/request-timeout
+NUMBER_OF_RETRIES = 3
+TIMEOUT = 10
+
 
 class UserService:
     @staticmethod
     async def get(path: str) -> Response:
-        async with AsyncClient() as client:
+        async with AsyncClient(
+            transport=AsyncHTTPTransport(retries=NUMBER_OF_RETRIES), timeout=TIMEOUT
+        ) as client:
             response = await client.get(USERS_SERVICE_URL + path)
-            return response.raise_for_status()
+            return response
 
     @staticmethod
     async def get_user(author_user_id: int) -> GetUserSchema:
@@ -31,6 +39,8 @@ class UserService:
             if e.response.status_code == 404:
                 raise ItemNotFound("User", author_user_id)
             else:
+                print(f"HTTPStatusError error: {e}")
                 raise InternalServerErrorException("User service")
-        except Exception:
+        except Exception as e:
+            print(f"Unexpected error: {e}")
             raise InternalServerErrorException("User service")

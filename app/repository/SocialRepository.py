@@ -21,8 +21,8 @@ class SocialRepository(ABC):
     def update_post(
         self,
         id_post: str,
-        content: Optional[str],
-    ):
+        update_post_set: str,
+    ) -> Optional[int]:
         pass
 
     @abstractmethod

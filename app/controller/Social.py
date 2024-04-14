@@ -1,9 +1,11 @@
+from typing import Optional
 from app.schemas.Post import (
     PostCreateSchema,
+    PostPartialUpdateSchema,
     PostSchema,
 )
 from app.service.Social import SocialService
-from fastapi import status
+from fastapi import HTTPException, status, Response
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
@@ -23,4 +25,33 @@ class SocialController:
         post: PostSchema = await self.social_service.get_post(id_post)
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(post)
+        )
+
+    async def handle_update_post(
+        self,
+        id_post: str,
+        update_post_set: PostPartialUpdateSchema,
+    ) -> JSONResponse:
+        post: Optional[PostSchema] = await self.social_service.update_post(
+            id_post, update_post_set
+        )
+
+        if post:
+            return JSONResponse(
+                status_code=status.HTTP_200_OK, content=jsonable_encoder(post)
+            )
+
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Could not found a post with id {id_post}",
+        )
+
+    def handle_delete_post(self, id_post: str) -> JSONResponse:
+        row_count = self.social_service.delete_post(id_post)
+        if row_count == 0:
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content="Post deleted successfully",
         )
