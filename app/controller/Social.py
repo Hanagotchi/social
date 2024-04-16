@@ -58,9 +58,9 @@ class SocialController:
         )
 
     async def handle_get_my_feed(
-        self, id_user: str, pagination: PostPagination
+        self, user_id: int, pagination: PostPagination
     ) -> JSONResponse:
-        list = await self.social_service.get_my_feed(id_user, pagination)
+        list = await self.social_service.get_my_feed(user_id, pagination)
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(list)
         )

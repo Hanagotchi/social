@@ -64,8 +64,8 @@ class SocialService:
         except Exception as err:
             raise err
 
-    async def get_my_feed(self, id_user: str, pagination: PostPagination):
-        user: GetUserSchema = await UserService.get_user(id_user)
+    async def get_my_feed(self, user_id: int, pagination: PostPagination):
+        user: GetUserSchema = await UserService.get_user(user_id)
         print(f"[USER]: {user}")
         following = [1, 2, 3, 4, 5]
         tags = "AR"

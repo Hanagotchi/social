@@ -1,6 +1,6 @@
 from datetime import datetime
 import logging
-from fastapi import FastAPI, Query, Request, Body
+from fastapi import Depends, FastAPI, Query, Request, Body
 from app.controller.Social import SocialController
 from app.service.Social import SocialService
 from typing import Annotated
@@ -11,6 +11,7 @@ from app.schemas.Post import (
     PostPagination,
     PostPartialUpdateSchema,
 )
+from app.security.JWTBearer import get_current_user_id
 
 app = FastAPI(
     title="Social API",
@@ -73,19 +74,20 @@ def delete_post(id_post: str):
 
 
 @app.get(
-    "/social/feed/{id_user}",
+    "/social/feed",
     tags=["Posts"],
 )
 async def get_my_feed(
-    id_user: str,
+    user_id: Annotated[int, Depends(get_current_user_id)],
     time_offset: Annotated[datetime | None, Query(default_factory=datetime.today)],
     page: Annotated[int | None, Query(ge=1)] = 1,
     per_page: Annotated[int | None, Query(ge=1, le=100)] = 30,
 ):
+    print(f"[MY FEED] [USER_ID: {user_id}]")
     print(
         f"[MY FEED] [TIME_OFFSET: {time_offset}] [PAGE: {page}] [PER_PAGE: {per_page}]"
     )
 
     return await social_controller.handle_get_my_feed(
-        id_user, PostPagination(time_offset=time_offset, page=page, per_page=per_page)
+        user_id, PostPagination(time_offset=time_offset, page=page, per_page=per_page)
     )

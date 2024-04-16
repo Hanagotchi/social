@@ -1,4 +1,3 @@
-from zoneinfo import ZoneInfo
 from pydantic import BaseModel, Field, AfterValidator, HttpUrl
 from typing import Annotated, Optional
 from app.schemas import User
