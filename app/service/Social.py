@@ -79,15 +79,31 @@ class SocialService:
         )
         print(f"[FILTERS]: {filters}")
         cursor = self.social_repository.get_posts_by(filters)
-        posts = []
+        fetched_posts = []
+        users_ids_to_fetch = set()
+
         for post in cursor:
-            get_user: GetUserSchema = await UserService.get_user(post["author_user_id"])
+            author_id = post["author_user_id"]
+            users_ids_to_fetch.add(author_id)
+            fetched_posts.append(post)
+
+        users_fetched_hash = {}
+        users_fetched_list = await UserService.get_users(list(users_ids_to_fetch))
+
+        for user in users_fetched_list:
+            users_fetched_hash[user.id] = user
+
+        final_posts = []
+
+        for post in fetched_posts:
+            author_id = post["author_user_id"]
+            get_user: GetUserSchema = users_fetched_hash.get(author_id)
             user: ReducedUser = ReducedUser.from_pydantic(get_user)
             map_author_user_id(user, post)
             valid_post = PostInFeedSchema.from_post(PostSchema.model_validate(post))
-            posts.append(valid_post)
+            final_posts.append(valid_post)
 
-        return posts
+        return final_posts
 
 
 def map_author_user_id(user, post):
