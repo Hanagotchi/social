@@ -33,3 +33,15 @@ class SocialRepository(ABC):
     @abstractmethod
     def delete_post(self, id_received: str) -> int:
         pass
+
+    @abstractmethod
+    def get_following_of(self, user_id: int) -> List[int]:
+        pass
+
+    @abstractmethod
+    def add_social_user(self, record: Base) -> Optional[int]:
+        pass
+
+    @abstractmethod
+    def get_social_user(self, id_received: int) -> Base:
+        pass

@@ -3,7 +3,7 @@ from httpx import AsyncClient, HTTPStatusError, Response, AsyncHTTPTransport
 from os import environ
 from app.exceptions.InternalServerErrorException import InternalServerErrorException
 from app.exceptions.NotFoundException import ItemNotFound
-from app.schemas.User import GetUserSchema
+from app.schemas.RealUser import GetUserSchema
 
 logger = logging.getLogger("users")
 logger.setLevel("DEBUG")

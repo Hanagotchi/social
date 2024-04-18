@@ -12,6 +12,7 @@ from app.schemas.Post import (
     PostPartialUpdateSchema,
 )
 from app.security.JWTBearer import get_current_user_id
+from app.schemas.SocialUser import SocialUserCreateSchema
 
 app = FastAPI(
     title="Social API",
@@ -74,8 +75,8 @@ def delete_post(id_post: str):
 
 
 @app.get(
-    "/social/feed",
-    tags=["Posts"],
+    "/social/users/me/feed",
+    tags=["Social User"],
 )
 async def get_my_feed(
     user_id: Annotated[int, Depends(get_current_user_id)],
@@ -87,7 +88,14 @@ async def get_my_feed(
     print(
         f"[MY FEED] [TIME_OFFSET: {time_offset}] [PAGE: {page}] [PER_PAGE: {per_page}]"
     )
-
     return await social_controller.handle_get_my_feed(
         user_id, PostPagination(time_offset=time_offset, page=page, per_page=per_page)
     )
+
+
+@app.post(
+    "/social/users",
+    tags=["Social User"],
+)
+async def create_social_user(item: SocialUserCreateSchema):
+    return await social_controller.handle_create_social_user(item)

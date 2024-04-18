@@ -50,7 +50,7 @@ class SocialMongoDB(SocialRepository):
         if result is None:
             raise ItemNotFound("Post", id_post)
 
-        result["id"] = str(result["_id"])
+        result["id"] = str(result.pop("_id"))
         return result
 
     @updatedAtTrigger(collection_name="posts")
@@ -102,5 +102,41 @@ class SocialMongoDB(SocialRepository):
             {"$skip": (filters.pagination.page - 1) * filters.pagination.per_page},
             {"$limit": filters.pagination.per_page},
         ]
+        cursor = self.posts_collection.aggregate(pipeline)
+        posts = []
+        for post in cursor:
+            post["id"] = str(post.pop("_id"))
+            posts.append(post)
+        return posts
 
-        return list(self.posts_collection.aggregate(pipeline))
+    @withMongoExceptionsHandle()
+    def get_following_of(self, user_id: int) -> List[int]:
+        following = list(
+            self.users_collection.find({"_id": user_id}, {"following": 1, "_id": 0})
+        )
+        if not following:
+            raise ItemNotFound("User", user_id)
+        following = following[0].get("following", [])
+        return following
+
+    @withMongoExceptionsHandle()
+    def add_social_user(self, record: Base) -> Optional[int]:
+        record_dump = record.model_dump(by_alias=True)
+        print(f"[RECORD DUMP]: {record_dump}")
+        if "_id" not in record_dump:
+            raise Exception("Int id of user is required to add a social user")
+        id = record_dump["_id"]
+        try:
+            self.users_collection.insert_one(record_dump)
+            return id
+        except pymongo.errors.DuplicateKeyError:
+            return id
+        except Exception as e:
+            raise e
+
+    @withMongoExceptionsHandle()
+    def get_social_user(self, id_received: int) -> Base:
+        result = self.users_collection.find_one({"_id": id_received})
+        if result is None:
+            raise ItemNotFound("User", id_received)
+        return result
