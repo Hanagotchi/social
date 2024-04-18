@@ -16,7 +16,7 @@ class Post(Base):
     likes_count: int = Field(default=0)
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
-    photo_links: Optional[list[str]] = None
+    photo_links: list[str] = []
 
     class Config:
         allow_population_by_field_name = False
