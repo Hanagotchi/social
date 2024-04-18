@@ -28,13 +28,16 @@ class PostCreateSchema(BaseModel):
         }
 
 
-class PostSchema(BaseModel):
+class PostBaseModel(BaseModel):
     id: str = Field(...)
     author: ReducedUser = Field(...)
     content: str = Field(..., max_length=512)
     likes_count: int = Field(default=0)
     created_at: datetime
     updated_at: datetime
+
+
+class PostSchema(PostBaseModel):
     photo_links: Optional[list[PhotoUrl]] = None
 
     class Config:
@@ -63,6 +66,36 @@ class PostSchema(BaseModel):
         # json_encoders = {datetime: lambda v: datetime.now(
         #                         ZoneInfo("America/Argentina/Buenos_Aires")
         #                     ).isoformat()[:-6]}
+
+
+class PostInFeedSchema(PostBaseModel):
+    main_photo_link: Optional[PhotoUrl] = None
+
+    class Config:
+        arbitrary_types_allowed = True
+        json_schema_extra = {
+            "example": {
+                "id": 1,
+                "author_user_id": 1,
+                "content": (
+                    "Mi buena petuña es hermosa. "
+                    "Crece, crece y crece, "
+                    "y en verano me da mandarinas."
+                ),
+                "likes_count": 0,
+                "created_at": "2021-08-08T20:00:00",
+                "updated_at": "2021-08-08T20:00:00",
+                "main_photo_link": "https://example.com/photo1.jpg",
+            }
+        }
+
+    @classmethod
+    def from_post(cls, post: PostSchema):
+        dict = post.model_dump()
+        dict["main_photo_link"] = (
+            dict["photo_links"][0] if dict["photo_links"] else None
+        )
+        return cls(**dict)
 
 
 class PostPartialUpdateSchema(BaseModel):

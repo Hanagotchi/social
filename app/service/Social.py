@@ -6,6 +6,7 @@ from app.service.Users import UserService
 from app.schemas.Post import (
     PostCreateSchema,
     PostFilters,
+    PostInFeedSchema,
     PostPagination,
     PostSchema,
     PostPartialUpdateSchema,
@@ -57,7 +58,9 @@ class SocialService:
         row_count = self.social_repository.delete_post(id_post)
         return row_count
 
-    async def create_social_user(self, input_user: SocialUserCreateSchema) -> SocialUserSchema:
+    async def create_social_user(
+        self, input_user: SocialUserCreateSchema
+    ) -> SocialUserSchema:
         if not await UserService.user_exists(input_user.id):
             raise BadRequestException("User does not exist in the system!")
 
@@ -69,7 +72,7 @@ class SocialService:
 
     async def get_my_feed(
         self, user_id: int, pagination: PostPagination
-    ) -> List[PostSchema]:
+    ) -> List[PostInFeedSchema]:
         following = self.social_repository.get_following_of(user_id)
         filters = PostFilters(
             pagination=pagination, following=following if following else None, tags=None
@@ -81,7 +84,7 @@ class SocialService:
             get_user: GetUserSchema = await UserService.get_user(post["author_user_id"])
             user: ReducedUser = ReducedUser.from_pydantic(get_user)
             map_author_user_id(user, post)
-            valid_post = PostSchema.model_validate(post)
+            valid_post = PostInFeedSchema.from_post(PostSchema.model_validate(post))
             posts.append(valid_post)
 
         return posts

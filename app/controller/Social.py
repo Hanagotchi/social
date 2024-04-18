@@ -70,7 +70,9 @@ class SocialController:
     async def handle_create_social_user(
         self, input_user: SocialUserCreateSchema
     ) -> JSONResponse:
-        user: SocialUserSchema = await self.social_service.create_social_user(input_user)
+        user: SocialUserSchema = await self.social_service.create_social_user(
+            input_user
+        )
         return JSONResponse(
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(user)
         )
