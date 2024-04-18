@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, AfterValidator, HttpUrl
 from typing import Annotated, Optional
-from app.schemas import User
+from app.schemas.User import UserReduced
 from datetime import datetime
 
 PhotoUrl = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
@@ -30,7 +30,7 @@ class PostCreateSchema(BaseModel):
 
 class PostSchema(BaseModel):
     id: str = Field(...)
-    author: User = Field(...)
+    author: UserReduced = Field(...)
     content: str = Field(..., max_length=512)
     likes_count: int = Field(default=0)
     created_at: datetime
@@ -93,5 +93,6 @@ class PostPagination(BaseModel):
 
 class PostFilters(BaseModel):
     pagination: PostPagination
-    following: Optional[list[int]]
-    tags: Optional[str] = Field(..., min_length=2, max_length=128)
+    following: Optional[list[int]] = None
+    tags: Optional[str] = Field(..., min_length=2, max_length=128) 
+
