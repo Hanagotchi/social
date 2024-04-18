@@ -44,3 +44,18 @@ class UserService:
         except Exception as e:
             print(f"Unexpected error: {e}")
             raise InternalServerErrorException("User service")
+
+    @staticmethod
+    async def user_exists(user_id: int) -> bool:
+        try:
+            response = await UserService.get(f"/users/{user_id}")
+            return response.status_code == 200
+        except HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return False
+            else:
+                print(f"HTTPStatusError error: {e}")
+                raise InternalServerErrorException("User service")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            raise InternalServerErrorException("User service")
