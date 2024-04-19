@@ -16,6 +16,7 @@ class Post(Base):
     likes_count: int = Field(default=0)
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
+    tags: list[str] = []
     photo_links: list[str] = []
 
     class Config:
@@ -37,5 +38,6 @@ class Post(Base):
             content=pydantic_obj.content,
             created_at=None,
             updated_at=None,
+            tags=pydantic_obj.tags if pydantic_obj.tags else [],
             photo_links=pydantic_obj.photo_links if pydantic_obj.photo_links else [],
         )
