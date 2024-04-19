@@ -77,6 +77,9 @@ class SocialService:
         following.append(user_id)  # Add the user itself to the feed!
         filters = PostFilters(pagination=pagination, users=following, tags=None)
         print(f"[FILTERS]: {filters}")
+        return await self.get_all(user_id, filters)
+
+    async def get_all(self, user_id: int, filters: PostFilters) -> List[PostSchema]:
         cursor = self.social_repository.get_posts_by(filters)
         fetched_posts = []
         users_ids_to_fetch = set()
