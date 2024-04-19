@@ -84,10 +84,6 @@ async def get_my_feed(
     page: Annotated[int | None, Query(ge=1)] = 1,
     per_page: Annotated[int | None, Query(ge=1, le=100)] = 30,
 ):
-    print(f"[MY FEED] [USER_ID: {user_id}]")
-    print(
-        f"[MY FEED] [TIME_OFFSET: {time_offset}] [PAGE: {page}] [PER_PAGE: {per_page}]"
-    )
     return await social_controller.handle_get_my_feed(
         user_id, PostPagination(time_offset=time_offset, page=page, per_page=per_page)
     )

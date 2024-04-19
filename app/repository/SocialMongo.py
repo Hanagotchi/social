@@ -95,8 +95,9 @@ class SocialMongoDB(SocialRepository):
         ]
         if filters.tags:
             pipeline.append({"$match": {"tags": filters.tags}})
-        if filters.following:
-            pipeline.append({"$match": {"author_user_id": {"$in": filters.following}}})
+        if filters.users:
+            pipeline.append({"$match": {"author_user_id": {"$in": filters.users}}})
+
         pipeline += [
             {"$sort": {"updated_at": -1}},  # sort by updated_at desc
             {"$skip": (filters.pagination.page - 1) * filters.pagination.per_page},

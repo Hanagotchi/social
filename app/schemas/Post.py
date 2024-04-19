@@ -126,5 +126,5 @@ class PostPagination(BaseModel):
 
 class PostFilters(BaseModel):
     pagination: PostPagination
-    following: Optional[list[int]] = None
+    users: Optional[list[int]] = None
     tags: Optional[str] = Field(..., min_length=2, max_length=128)
