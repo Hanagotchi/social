@@ -1,7 +1,6 @@
 from datetime import datetime
 import logging
 from fastapi import Depends, FastAPI, Query, Request, Body
-from pydantic import Tag
 from app.controller.Social import SocialController
 from app.service.Social import SocialService
 from typing import Annotated
@@ -12,7 +11,7 @@ from app.schemas.Post import (
     PostFilters,
     PostPagination,
     PostPartialUpdateSchema,
-    Tag
+    Tag,
 )
 from app.security.JWTBearer import get_current_user_id
 from app.schemas.SocialUser import SocialUserCreateSchema
@@ -109,6 +108,12 @@ async def get_all_posts(
     author: Annotated[int | None, Query(ge=1)] = None,
 ):
     return await social_controller.handle_get_all(
-        author, PostFilters(pagination=PostPagination(time_offset=time_offset, page=page, per_page=per_page), tags=tag, users=[author] if author else None)
+        author,
+        PostFilters(
+            pagination=PostPagination(
+                time_offset=time_offset, page=page, per_page=per_page
+            ),
+            tags=tag,
+            users=[author] if author else None,
+        ),
     )
-
