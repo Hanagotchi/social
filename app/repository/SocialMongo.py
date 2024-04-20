@@ -116,7 +116,7 @@ class SocialMongoDB(SocialRepository):
             self.users_collection.find({"_id": user_id}, {"following": 1, "_id": 0})
         )
         if not following:
-            raise ItemNotFound("User", user_id)
+            raise ItemNotFound("Social User", user_id)
         following = following[0].get("following", [])
         return following
 
