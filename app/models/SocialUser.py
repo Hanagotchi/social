@@ -12,7 +12,7 @@ class SocialUser(Base):
     __collectionname__ = "users"
 
     # id of real user in the microservice!
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: int = Field(strict=False, alias="_id")
     followers: list[int] = []
     following: list[int] = []
     tags: list[str] = []
