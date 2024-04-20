@@ -108,12 +108,11 @@ async def get_all_posts(
     author: Annotated[int | None, Query(ge=1)] = None,
 ):
     return await social_controller.handle_get_all(
-        author,
         PostFilters(
             pagination=PostPagination(
                 time_offset=time_offset, page=page, per_page=per_page
             ),
-            tags=tag,
+            tags=tag.lower() if tag else None,
             users=[author] if author else None,
         ),
     )
