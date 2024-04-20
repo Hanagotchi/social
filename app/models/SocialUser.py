@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pydantic import Field
-from app.models.base import Base
+from app.models.base import Base, PyObjectId
 from app.schemas.SocialUser import SocialUserCreateSchema
 
 
@@ -12,7 +12,7 @@ class SocialUser(Base):
     __collectionname__ = "users"
 
     # id of real user in the microservice!
-    id: int = Field(strict=False, alias="_id")
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     followers: list[int] = []
     following: list[int] = []
     tags: list[str] = []

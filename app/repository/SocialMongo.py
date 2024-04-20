@@ -140,4 +140,6 @@ class SocialMongoDB(SocialRepository):
         result = self.users_collection.find_one({"_id": ObjectId(id_received)})
         if result is None:
             raise ItemNotFound("User", id_received)
+
+        result["id"] = str(result.pop("_id"))
         return result
