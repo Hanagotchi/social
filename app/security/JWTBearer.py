@@ -1,11 +1,12 @@
+import os
 from typing import Annotated
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import Request, Depends, HTTPException, status
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
-SECRET_KEY = "secret"
-ALGORITHM = "HS256"
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
 TOKEN_FIELD_NAME = "x-access-token"
 
 
