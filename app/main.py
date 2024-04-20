@@ -100,7 +100,7 @@ async def create_social_user(item: SocialUserCreateSchema):
 
 
 @app.get("/social/users/{id_user}", tags=["Social User"])
-async def get_social_user(id_user: str):
+async def get_social_user(id_user: int):
     return await social_controller.handle_get_social_user(id_user)
 
 

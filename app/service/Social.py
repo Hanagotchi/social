@@ -70,7 +70,7 @@ class SocialService:
 
         return SocialUserSchema.model_validate(crated_user)
 
-    async def get_social_user(self, id_user: str) -> SocialUserSchema:
+    async def get_social_user(self, id_user: int) -> SocialUserSchema:
         user = self.social_repository.get_social_user(id_user)
         return SocialUserSchema.model_validate(user)
 

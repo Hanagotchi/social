@@ -135,8 +135,8 @@ class SocialMongoDB(SocialRepository):
             raise e
 
     @withMongoExceptionsHandle()
-    def get_social_user(self, id_received: str) -> Base:
-        result = self.users_collection.find_one({"_id": int(id_received)})
+    def get_social_user(self, id_received: int) -> Base:
+        result = self.users_collection.find_one({"_id": id_received})
         if result is None:
             raise ItemNotFound("User", id_received)
 
