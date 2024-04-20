@@ -117,3 +117,14 @@ async def get_all_posts(
             users=[author] if author else None,
         ),
     )
+
+
+@app.post(
+    "/social/users/follow",
+    tags=["Social User"],
+)
+async def follow_social_user(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    user_to_follow_id: int = Body(...)
+):
+    return await social_controller.handle_follow_social_user(user_id, user_to_follow_id)

@@ -121,6 +121,16 @@ class SocialMongoDB(SocialRepository):
         return following
 
     @withMongoExceptionsHandle()
+    def get_followers_of(self, user_id: int) -> List[int]:
+        followers = list(
+            self.users_collection.find({"_id": user_id}, {"followers": 1, "_id": 0})
+        )
+        if not followers:
+            raise ItemNotFound("Social User", user_id)
+        followers = followers[0].get("following", [])
+        return followers
+
+    @withMongoExceptionsHandle()
     def add_social_user(self, record: Base) -> Optional[int]:
         record_dump = record.model_dump(by_alias=True)
         print(f"[RECORD DUMP]: {record_dump}")

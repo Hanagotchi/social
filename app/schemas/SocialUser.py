@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 
 
 class SocialUserCreateSchema(BaseModel):
@@ -13,3 +14,8 @@ class SocialUserSchema(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+
+
+class UserPartialUpdateSchema(BaseModel):
+    followers: Optional[list[int]] = None
+    following: Optional[list[int]] = None

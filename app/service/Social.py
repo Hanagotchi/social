@@ -13,7 +13,7 @@ from app.schemas.Post import (
 )
 from app.exceptions.NotFoundException import ItemNotFound
 from app.schemas.RealUser import GetUserSchema, ReducedUser
-from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema
+from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema, UserPartialUpdateSchema, SocialUserSchema
 from app.models.SocialUser import SocialUser
 from app.exceptions.BadRequestException import BadRequestException
 
@@ -78,6 +78,28 @@ class SocialService:
         filters = PostFilters(pagination=pagination, users=following, tags=None)
         print(f"[FILTERS]: {filters}")
         return await self.get_all(user_id, filters)
+
+    async def update_social_user(
+        self,
+        id_user: str,
+        update_user_set: UserPartialUpdateSchema,
+    ) -> Optional[SocialUserSchema]:
+        self.social_repository.update_social_user(
+            id_user, update_user_set.model_dump_json(exclude_none=True)
+        )
+        return await self.get_social_user(id_user)
+
+    async def follow_social_user(self, user_id, user_to_follow_id):
+        following = self.social_repository.get_following_of(user_id)
+        following.append(user_to_follow_id)
+        updates = { following }
+        self.social_repository.update_user(user_id, updates.model_dump_json(exclude_none=True))
+
+        followers = self.social_repository.get_followers_of(user_to_follow_id)
+        followers.append(user_id)
+        updates = { following }
+        self.social_repository.update_user(user_to_follow_id, updates.model_dump_json(exclude_none=True))
+
 
     async def get_all(self, user_id: int, filters: PostFilters) -> List[PostSchema]:
         cursor = self.social_repository.get_posts_by(filters)
