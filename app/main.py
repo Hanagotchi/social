@@ -99,6 +99,11 @@ async def create_social_user(item: SocialUserCreateSchema):
     return await social_controller.handle_create_social_user(item)
 
 
+@app.get("/social/users/{id_user}", tags=["Social User"])
+async def get_social_user(id_user: str):
+    return await social_controller.handle_get_social_user(id_user)
+
+
 @app.get("/social/posts", tags=["Posts"])
 async def get_all_posts(
     time_offset: Annotated[datetime | None, Query(default_factory=datetime.today)],

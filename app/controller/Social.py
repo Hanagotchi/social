@@ -83,3 +83,7 @@ class SocialController:
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(list)
         )
+
+    async def handle_get_social_user(self, user_id: str) -> JSONResponse:
+        user: SocialUserSchema = await self.social_service.get_social_user(user_id)
+        return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(user))

@@ -70,6 +70,10 @@ class SocialService:
 
         return SocialUserSchema.model_validate(crated_user)
 
+    async def get_social_user(self, id_user: str) -> SocialUserSchema:
+        user = self.social_repository.get_social_user(id_user)
+        return SocialUserSchema.model_validate(user)
+
     async def get_my_feed(
         self, user_id: int, pagination: PostPagination
     ) -> List[PostInFeedSchema]:
