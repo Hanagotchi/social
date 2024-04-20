@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pydantic import Field
-from app.models.base import Base, PyObjectId
+from app.models.base import Base
 from app.schemas.SocialUser import SocialUserCreateSchema
 
 
