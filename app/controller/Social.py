@@ -1,6 +1,7 @@
 from typing import Optional
 from app.schemas.Post import (
     PostCreateSchema,
+    PostFilters,
     PostPagination,
     PostPartialUpdateSchema,
     PostSchema,
@@ -75,4 +76,10 @@ class SocialController:
         )
         return JSONResponse(
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(user)
+        )
+
+    async def handle_get_all(self, filters: PostFilters) -> JSONResponse:
+        list = await self.social_service.get_all(filters)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK, content=jsonable_encoder(list)
         )

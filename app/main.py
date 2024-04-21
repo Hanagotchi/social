@@ -8,8 +8,10 @@ from typing import Annotated
 from app.repository.SocialMongo import SocialMongoDB
 from app.schemas.Post import (
     PostCreateSchema,
+    PostFilters,
     PostPagination,
     PostPartialUpdateSchema,
+    Tag,
 )
 from app.security.JWTBearer import get_current_user_id
 from app.schemas.SocialUser import SocialUserCreateSchema
@@ -95,3 +97,22 @@ async def get_my_feed(
 )
 async def create_social_user(item: SocialUserCreateSchema):
     return await social_controller.handle_create_social_user(item)
+
+
+@app.get("/social/posts", tags=["Posts"])
+async def get_all_posts(
+    time_offset: Annotated[datetime | None, Query(default_factory=datetime.today)],
+    page: Annotated[int | None, Query(ge=1)] = 1,
+    per_page: Annotated[int | None, Query(ge=1, le=100)] = 30,
+    tag: Annotated[Tag | None, Query(default_factory=None)] = None,
+    author: Annotated[int | None, Query(ge=1)] = None,
+):
+    return await social_controller.handle_get_all(
+        PostFilters(
+            pagination=PostPagination(
+                time_offset=time_offset, page=page, per_page=per_page
+            ),
+            tags=tag.lower() if tag else None,
+            users=[author] if author else None,
+        ),
+    )

@@ -24,6 +24,7 @@ class ReducedUser(BaseModel):
     Schema used to display the minimal and necessary information of a user in a post.
     """
 
+    id: Optional[int]
     name: Optional[str]
     photo: Optional[str]
     nickname: Optional[str]
