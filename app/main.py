@@ -1,13 +1,18 @@
+from datetime import datetime
 import logging
-from fastapi import FastAPI, Request, Body
+from fastapi import Depends, FastAPI, Query, Request, Body
 from app.controller.Social import SocialController
 from app.service.Social import SocialService
+from typing import Annotated
 
 from app.repository.SocialMongo import SocialMongoDB
 from app.schemas.Post import (
     PostCreateSchema,
+    PostPagination,
     PostPartialUpdateSchema,
 )
+from app.security.JWTBearer import get_current_user_id
+from app.schemas.SocialUser import SocialUserCreateSchema
 
 app = FastAPI(
     title="Social API",
@@ -67,3 +72,26 @@ async def update_fields_in_post(
 )
 def delete_post(id_post: str):
     return social_controller.handle_delete_post(id_post)
+
+
+@app.get(
+    "/social/users/me/feed",
+    tags=["Social User"],
+)
+async def get_my_feed(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    time_offset: Annotated[datetime | None, Query(default_factory=datetime.today)],
+    page: Annotated[int | None, Query(ge=1)] = 1,
+    per_page: Annotated[int | None, Query(ge=1, le=100)] = 30,
+):
+    return await social_controller.handle_get_my_feed(
+        user_id, PostPagination(time_offset=time_offset, page=page, per_page=per_page)
+    )
+
+
+@app.post(
+    "/social/users",
+    tags=["Social User"],
+)
+async def create_social_user(item: SocialUserCreateSchema):
+    return await social_controller.handle_create_social_user(item)

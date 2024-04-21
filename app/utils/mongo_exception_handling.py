@@ -2,7 +2,7 @@ import logging
 from app.exceptions.BadRequestException import BadRequestException
 from bson.errors import BSONError, InvalidId
 from pymongo.errors import PyMongoError
-from app.exceptions import InternalServerErrorException
+from app.exceptions.InternalServerErrorException import InternalServerErrorException
 
 logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
