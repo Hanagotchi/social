@@ -50,6 +50,7 @@ class SocialMongoDB(SocialRepository):
         if result is None:
             raise ItemNotFound("Post", id_post)
 
+        result["id"] = str(result.pop("_id"))
         return result
 
     @updatedAtTrigger(collection_name="posts")
@@ -139,5 +140,4 @@ class SocialMongoDB(SocialRepository):
         result = self.users_collection.find_one({"_id": id_received})
         if result is None:
             raise ItemNotFound("User", id_received)
-
         return result

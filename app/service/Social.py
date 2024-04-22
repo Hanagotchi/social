@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import Optional, List
 from app.models.Post import Post
 from app.repository.SocialRepository import SocialRepository
 from app.service.Users import UserService
@@ -12,10 +12,10 @@ from app.schemas.Post import (
     PostPartialUpdateSchema,
 )
 from app.exceptions.NotFoundException import ItemNotFound
-from app.schemas.RealUser import GetUserSchema, ReducedUser
-from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema, UserSchema
 from app.models.SocialUser import SocialUser
+from app.schemas.RealUser import GetUserSchema, ReducedUser
 from app.exceptions.BadRequestException import BadRequestException
+from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema, UserSchema
 
 logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
@@ -66,20 +66,21 @@ class SocialService:
 
         user = SocialUser.from_pydantic(input_user)
         user_id = self.social_repository.add_social_user(user)
-        created_user = self.social_repository.get_social_user(user_id)
-        return SocialUserSchema.model_validate(created_user)
+        crated_user = self.social_repository.get_social_user(user_id)
+
+        return SocialUserSchema.model_validate(crated_user)
 
     async def get_social_user(self, id_user: int) -> UserSchema:
         social_user = self.social_repository.get_social_user(id_user)
         get_user: GetUserSchema = await UserService.get_user(id_user)
         user = {'_id': id_user,
-                'following': social_user["following"],
-                'followers': social_user["followers"],
-                'tags': social_user["tags"],
-                'name': get_user.name,
-                'photo': get_user.photo,
-                'nickname': get_user.nickname
-                }
+             'following': social_user["following"],
+             'followers': social_user["followers"],
+             'tags': social_user["tags"],
+             'name': get_user.name,
+             'photo': get_user.photo,
+             'nickname': get_user.nickname
+             }
         return UserSchema.model_validate(user)
 
     async def get_my_feed(
@@ -89,9 +90,9 @@ class SocialService:
         following.append(user_id)  # Add the user itself to the feed!
         filters = PostFilters(pagination=pagination, users=following, tags=None)
         print(f"[FILTERS]: {filters}")
-        return await self.get_all(user_id, filters)
+        return await self.get_all(filters)
 
-    async def get_all(self, user_id: int, filters: PostFilters) -> List[PostSchema]:
+    async def get_all(self, filters: PostFilters) -> List[PostSchema]:
         cursor = self.social_repository.get_posts_by(filters)
         fetched_posts = []
         users_ids_to_fetch = set()
@@ -120,6 +121,6 @@ class SocialService:
         return final_posts
 
 
-def map_author_user_id(user, post):
-    post["author"] = user
-    post.pop("author_user_id")
+def map_author_user_id(user, crated_post):
+    crated_post["author"] = user
+    crated_post.pop("author_user_id")

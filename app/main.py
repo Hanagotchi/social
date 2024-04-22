@@ -4,7 +4,6 @@ from fastapi import Depends, FastAPI, Query, Request, Body
 from app.controller.Social import SocialController
 from app.service.Social import SocialService
 from typing import Annotated
-
 from app.repository.SocialMongo import SocialMongoDB
 from app.schemas.Post import (
     PostCreateSchema,
@@ -91,17 +90,17 @@ async def get_my_feed(
     )
 
 
+@app.get("/social/users/{id_user}", tags=["Social User"])
+async def get_social_user(id_user: int):
+    return await social_controller.handle_get_social_user(id_user)
+
+
 @app.post(
     "/social/users",
     tags=["Social User"],
 )
 async def create_social_user(item: SocialUserCreateSchema):
     return await social_controller.handle_create_social_user(item)
-
-
-@app.get("/social/users/{id_user}", tags=["Social User"])
-async def get_social_user(id_user: int):
-    return await social_controller.handle_get_social_user(id_user)
 
 
 @app.get("/social/posts", tags=["Posts"])
@@ -113,12 +112,11 @@ async def get_all_posts(
     author: Annotated[int | None, Query(ge=1)] = None,
 ):
     return await social_controller.handle_get_all(
-        author,
         PostFilters(
             pagination=PostPagination(
                 time_offset=time_offset, page=page, per_page=per_page
             ),
-            tags=tag,
+            tags=tag.lower() if tag else None,
             users=[author] if author else None,
         ),
     )
