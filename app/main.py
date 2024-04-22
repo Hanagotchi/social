@@ -4,7 +4,6 @@ from fastapi import Depends, FastAPI, Query, Request, Body
 from app.controller.Social import SocialController
 from app.service.Social import SocialService
 from typing import Annotated
-
 from app.repository.SocialMongo import SocialMongoDB
 from app.schemas.Post import (
     PostCreateSchema,
@@ -89,6 +88,11 @@ async def get_my_feed(
     return await social_controller.handle_get_my_feed(
         user_id, PostPagination(time_offset=time_offset, page=page, per_page=per_page)
     )
+
+
+@app.get("/social/users/{id_user}", tags=["Social User"])
+async def get_social_user(id_user: int):
+    return await social_controller.handle_get_social_user(id_user)
 
 
 @app.post(

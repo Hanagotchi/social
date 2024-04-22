@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 
 
 class SocialUserCreateSchema(BaseModel):
@@ -13,3 +14,9 @@ class SocialUserSchema(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+
+
+class UserSchema(SocialUserSchema):
+    name: Optional[str]
+    photo: Optional[str]
+    nickname: Optional[str]

@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import Optional, List
 from app.models.Post import Post
 from app.repository.SocialRepository import SocialRepository
 from app.service.Users import UserService
@@ -12,10 +12,10 @@ from app.schemas.Post import (
     PostPartialUpdateSchema,
 )
 from app.exceptions.NotFoundException import ItemNotFound
-from app.schemas.RealUser import GetUserSchema, ReducedUser
-from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema
 from app.models.SocialUser import SocialUser
+from app.schemas.RealUser import GetUserSchema, ReducedUser
 from app.exceptions.BadRequestException import BadRequestException
+from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema, UserSchema
 
 logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
@@ -70,6 +70,19 @@ class SocialService:
 
         return SocialUserSchema.model_validate(crated_user)
 
+    async def get_social_user(self, id_user: int) -> UserSchema:
+        social_user = self.social_repository.get_social_user(id_user)
+        get_user: GetUserSchema = await UserService.get_user(id_user)
+        user = {'_id': id_user,
+                'following': social_user["following"],
+                'followers': social_user["followers"],
+                'tags': social_user["tags"],
+                'name': get_user.name,
+                'photo': get_user.photo,
+                'nickname': get_user.nickname
+                }
+        return UserSchema.model_validate(user)
+
     async def get_my_feed(
         self, user_id: int, pagination: PostPagination
     ) -> List[PostInFeedSchema]:
@@ -108,6 +121,6 @@ class SocialService:
         return final_posts
 
 
-def map_author_user_id(user, post):
-    post["author"] = user
-    post.pop("author_user_id")
+def map_author_user_id(user, crated_post):
+    crated_post["author"] = user
+    crated_post.pop("author_user_id")
