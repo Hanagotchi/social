@@ -13,7 +13,7 @@ from app.schemas.Post import (
 )
 from app.exceptions.NotFoundException import ItemNotFound
 from app.schemas.RealUser import GetUserSchema, ReducedUser
-from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema
+from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema, UserSchema
 from app.models.SocialUser import SocialUser
 from app.exceptions.BadRequestException import BadRequestException
 
@@ -66,13 +66,21 @@ class SocialService:
 
         user = SocialUser.from_pydantic(input_user)
         user_id = self.social_repository.add_social_user(user)
-        crated_user = self.social_repository.get_social_user(user_id)
+        created_user = self.social_repository.get_social_user(user_id)
+        return SocialUserSchema.model_validate(created_user)
 
-        return SocialUserSchema.model_validate(crated_user)
-
-    async def get_social_user(self, id_user: int) -> SocialUserSchema:
-        user = self.social_repository.get_social_user(id_user)
-        return SocialUserSchema.model_validate(user)
+    async def get_social_user(self, id_user: int) -> UserSchema:
+        social_user = self.social_repository.get_social_user(id_user)
+        get_user: GetUserSchema = await UserService.get_user(id_user)
+        user = {'_id': id_user,
+                'following': social_user["following"],
+                'followers': social_user["followers"],
+                'tags': social_user["tags"],
+                'name': get_user.name,
+                'photo': get_user.photo,
+                'nickname': get_user.nickname
+                }
+        return UserSchema.model_validate(user)
 
     async def get_my_feed(
         self, user_id: int, pagination: PostPagination
