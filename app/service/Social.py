@@ -91,14 +91,27 @@ class SocialService:
 
     async def follow_social_user(self, user_id, user_to_follow_id):
         following = self.social_repository.get_following_of(user_id)
-        following.append(user_to_follow_id)
-        updates = { following }
-        self.social_repository.update_user(user_id, updates.model_dump_json(exclude_none=True))
+        if user_to_follow_id in following: return
+        updates: UserPartialUpdateSchema = {"following": [user_id for user_id in following]}
+        self.update_social_user(user_id, updates)
 
         followers = self.social_repository.get_followers_of(user_to_follow_id)
         followers.append(user_id)
-        updates = { following }
-        self.social_repository.update_user(user_to_follow_id, updates.model_dump_json(exclude_none=True))
+        updates: UserPartialUpdateSchema = {"followers": [user_id for user_id in followers]}
+        self.update_social_user(user_to_follow_id, updates)
+
+
+    async def unfollow_social_user(self, user_id, user_to_unfollow_id):
+        following = self.social_repository.get_following_of(user_id)
+        if user_to_unfollow_id not in following: return
+        following.remove(user_to_unfollow_id)
+        updates: UserPartialUpdateSchema = {"following": [user_id for user_id in following]}
+        self.update_social_user(user_id, updates)
+
+        followers = self.social_repository.get_followers_of(user_to_unfollow_id)
+        followers.remove(user_id)
+        updates: UserPartialUpdateSchema = {"followers": [user_id for user_id in followers]}
+        self.update_social_user(user_to_unfollow_id, updates)
 
 
     async def get_all(self, user_id: int, filters: PostFilters) -> List[PostSchema]:

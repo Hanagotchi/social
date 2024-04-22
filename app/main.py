@@ -128,3 +128,14 @@ async def follow_social_user(
     user_to_follow_id: int = Body(...)
 ):
     return await social_controller.handle_follow_social_user(user_id, user_to_follow_id)
+
+
+@app.post(
+    "/social/users/unfollow",
+    tags=["Social User"],
+)
+async def follow_social_user(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    user_to_unfollow_id: int = Body(...)
+):
+    return await social_controller.handle_unfollow_social_user(user_id, user_to_unfollow_id)
