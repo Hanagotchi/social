@@ -74,13 +74,13 @@ class SocialService:
         social_user = self.social_repository.get_social_user(id_user)
         get_user: GetUserSchema = await UserService.get_user(id_user)
         user = {'_id': id_user,
-             'following': social_user["following"],
-             'followers': social_user["followers"],
-             'tags': social_user["tags"],
-             'name': get_user.name,
-             'photo': get_user.photo,
-             'nickname': get_user.nickname
-             }
+                'following': social_user["following"],
+                'followers': social_user["followers"],
+                'tags': social_user["tags"],
+                'name': get_user.name,
+                'photo': get_user.photo,
+                'nickname': get_user.nickname
+                }
         return UserSchema.model_validate(user)
 
     async def get_my_feed(
