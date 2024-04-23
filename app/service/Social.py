@@ -133,11 +133,9 @@ class SocialService:
         following = self.social_repository.get_following_of(user_id)
         if not await UserService.user_exists(user_to_follow_id):
                     raise BadRequestException("User does not exist in the system!")
-        print("following", following)
         if user_to_follow_id in following: return
         following.append(user_to_follow_id)
         updates: UserPartialUpdateSchema = {"following": [user_id for user_id in following]}
-        print("updates ", updates)
         await self.update_social_user(user_id, updates)
 
         followers = self.social_repository.get_followers_of(user_to_follow_id)
@@ -148,12 +146,15 @@ class SocialService:
 
     async def unfollow_social_user(self, user_id, user_to_unfollow_id):
         following = self.social_repository.get_following_of(user_id)
+        if not await UserService.user_exists(user_to_unfollow_id):
+                    raise BadRequestException("User does not exist in the system!")
         if user_to_unfollow_id not in following: return
         following.remove(user_to_unfollow_id)
         updates: UserPartialUpdateSchema = {"following": [user_id for user_id in following]}
         self.update_social_user(user_id, updates)
 
         followers = self.social_repository.get_followers_of(user_to_unfollow_id)
+        print(followers)
         followers.remove(user_id)
         updates: UserPartialUpdateSchema = {"followers": [user_id for user_id in followers]}
         self.update_social_user(user_to_unfollow_id, updates)
