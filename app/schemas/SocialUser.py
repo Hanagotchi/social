@@ -15,6 +15,11 @@ class SocialUserSchema(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
+class UserSchema(SocialUserSchema):
+    name: Optional[str]
+    photo: Optional[str]
+    nickname: Optional[str]
+
 
 class UserPartialUpdateSchema(BaseModel):
     followers: Optional[list[int]] = None

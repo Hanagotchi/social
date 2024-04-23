@@ -10,8 +10,7 @@ from app.service.Social import SocialService
 from fastapi import HTTPException, status, Response
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-
-from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema
+from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema, UserSchema
 
 
 class SocialController:
@@ -78,10 +77,17 @@ class SocialController:
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(user)
         )
 
-    async def handle_get_all(self, user_id: int, filters: PostFilters) -> JSONResponse:
-        list = await self.social_service.get_all(user_id, filters)
+    async def handle_get_all(self, filters: PostFilters) -> JSONResponse:
+        list = await self.social_service.get_all(filters)
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(list)
+        )
+
+    async def handle_get_social_user(self, user_id: int) -> JSONResponse:
+        user: UserSchema = await self.social_service.get_social_user(user_id)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=jsonable_encoder(user)
         )
 
     async def handle_follow_social_user(
