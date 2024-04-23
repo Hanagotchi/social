@@ -24,3 +24,11 @@ class UserSchema(SocialUserSchema):
 class UserPartialUpdateSchema(BaseModel):
     followers: Optional[list[int]] = None
     following: Optional[list[int]] = None
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "followers": [1, 2],
+                "following": [2, 3, 6],
+            }
+        }

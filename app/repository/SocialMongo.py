@@ -82,7 +82,7 @@ class SocialMongoDB(SocialRepository):
            return
 
        result = self.users_collection.update_one(
-           {"_id": ObjectId(id_user)}, {"$set": json.loads(update_user_set)}
+           {"_id": id_user}, {"$set": json.loads(update_user_set)}
        )
        return result.modified_count
 

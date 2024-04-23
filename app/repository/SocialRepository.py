@@ -31,6 +31,14 @@ class SocialRepository(ABC):
         pass
 
     @abstractmethod
+    def update_user(
+        self,
+        id_user: str,
+        update_user_set: str,
+    ) -> Optional[int]:
+        pass
+
+    @abstractmethod
     def delete_post(self, id_received: str) -> int:
         pass
 

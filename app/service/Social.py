@@ -54,6 +54,15 @@ class SocialService:
         )
         return await self.get_post(id_post)
 
+    async def update_social_user(
+        self,
+        id_user: str,
+        update_user_set: UserPartialUpdateSchema,
+    ) -> Optional[SocialUserSchema]:
+        update_user_obj = UserPartialUpdateSchema.parse_obj(update_user_set)
+        self.social_repository.update_user(id_user, update_user_obj.model_dump_json(exclude_none=True))
+        return await self.get_social_user(id_user)
+
     def delete_post(self, id_post: str):
         row_count = self.social_repository.delete_post(id_post)
         return row_count
@@ -120,26 +129,21 @@ class SocialService:
 
         return final_posts
 
-    async def update_social_user(
-        self,
-        id_user: str,
-        update_user_set: UserPartialUpdateSchema,
-    ) -> Optional[SocialUserSchema]:
-        self.social_repository.update_social_user(
-            id_user, update_user_set.model_dump_json(exclude_none=True)
-        )
-        return await self.get_social_user(id_user)
-
     async def follow_social_user(self, user_id, user_to_follow_id):
         following = self.social_repository.get_following_of(user_id)
+        if not await UserService.user_exists(user_to_follow_id):
+                    raise BadRequestException("User does not exist in the system!")
+        print("following", following)
         if user_to_follow_id in following: return
+        following.append(user_to_follow_id)
         updates: UserPartialUpdateSchema = {"following": [user_id for user_id in following]}
-        self.update_social_user(user_id, updates)
+        print("updates ", updates)
+        await self.update_social_user(user_id, updates)
 
         followers = self.social_repository.get_followers_of(user_to_follow_id)
         followers.append(user_id)
         updates: UserPartialUpdateSchema = {"followers": [user_id for user_id in followers]}
-        self.update_social_user(user_to_follow_id, updates)
+        await self.update_social_user(user_to_follow_id, updates)
 
 
     async def unfollow_social_user(self, user_id, user_to_unfollow_id):
