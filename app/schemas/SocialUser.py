@@ -15,6 +15,7 @@ class SocialUserSchema(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
+
 class UserSchema(SocialUserSchema):
     name: Optional[str]
     photo: Optional[str]

@@ -78,13 +78,13 @@ class SocialMongoDB(SocialRepository):
 
     @withMongoExceptionsHandle()
     def update_user(self, id_user: str, update_user_set: str) -> Optional[int]:
-       if not update_user_set:
-           return
+        if not update_user_set:
+            return
 
-       result = self.users_collection.update_one(
-           {"_id": id_user}, {"$set": json.loads(update_user_set)}
-       )
-       return result.modified_count
+        result = self.users_collection.update_one(
+            {"_id": id_user}, {"$set": json.loads(update_user_set)}
+        )
+        return result.modified_count
 
     @withMongoExceptionsHandle()
     def delete_post(self, id_received: str) -> int:
