@@ -151,13 +151,13 @@ class SocialService:
         if user_to_unfollow_id not in following: return
         following.remove(user_to_unfollow_id)
         updates: UserPartialUpdateSchema = {"following": [user_id for user_id in following]}
-        self.update_social_user(user_id, updates)
+        await self.update_social_user(user_id, updates)
 
         followers = self.social_repository.get_followers_of(user_to_unfollow_id)
-        print(followers)
+        if user_id not in followers: return
         followers.remove(user_id)
         updates: UserPartialUpdateSchema = {"followers": [user_id for user_id in followers]}
-        self.update_social_user(user_to_unfollow_id, updates)
+        await self.update_social_user(user_to_unfollow_id, updates)
 
 
 

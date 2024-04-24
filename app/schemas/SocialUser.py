@@ -21,6 +21,10 @@ class UserSchema(SocialUserSchema):
     nickname: Optional[str]
 
 
+class FollowUserSchema(BaseModel):
+    user_id: int
+
+
 class UserPartialUpdateSchema(BaseModel):
     followers: Optional[list[int]] = None
     following: Optional[list[int]] = None
