@@ -77,6 +77,16 @@ class SocialMongoDB(SocialRepository):
         return result.modified_count
 
     @withMongoExceptionsHandle()
+    def update_user(self, id_user: str, update_user_set: str) -> Optional[int]:
+        if not update_user_set:
+            return
+
+        result = self.users_collection.update_one(
+            {"_id": id_user}, {"$set": json.loads(update_user_set)}
+        )
+        return result.modified_count
+
+    @withMongoExceptionsHandle()
     def delete_post(self, id_received: str) -> int:
         """
         Delete a post by id and its logs
@@ -119,6 +129,16 @@ class SocialMongoDB(SocialRepository):
             raise ItemNotFound("Social User", user_id)
         following = following[0].get("following", [])
         return following
+
+    @withMongoExceptionsHandle()
+    def get_followers_of(self, user_id: int) -> List[int]:
+        followers = list(
+            self.users_collection.find({"_id": user_id}, {"followers": 1, "_id": 0})
+        )
+        if not followers:
+            raise ItemNotFound("Social User", user_id)
+        followers = followers[0].get("followers", [])
+        return followers
 
     @withMongoExceptionsHandle()
     def add_social_user(self, record: Base) -> Optional[int]:

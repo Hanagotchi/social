@@ -89,3 +89,25 @@ class SocialController:
             status_code=status.HTTP_200_OK,
             content=jsonable_encoder(user)
         )
+
+    async def handle_follow_social_user(
+        self,
+        user_id: str,
+        user_to_follow_id: str,
+    ) -> JSONResponse:
+
+        await self.social_service.follow_social_user(user_id, user_to_follow_id)
+
+        return JSONResponse(status_code=status.HTTP_200_OK,
+                            content="User followed successfully")
+
+    async def handle_unfollow_social_user(
+        self,
+        user_id: str,
+        user_to_unfollow_id: str,
+    ) -> JSONResponse:
+
+        await self.social_service.unfollow_social_user(user_id, user_to_unfollow_id)
+
+        return JSONResponse(status_code=status.HTTP_200_OK,
+                            content="User unfollowed successfully")

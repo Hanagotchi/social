@@ -13,7 +13,7 @@ from app.schemas.Post import (
     Tag,
 )
 from app.security.JWTBearer import get_current_user_id
-from app.schemas.SocialUser import SocialUserCreateSchema
+from app.schemas.SocialUser import SocialUserCreateSchema, FollowUserSchema
 
 app = FastAPI(
     title="Social API",
@@ -119,4 +119,30 @@ async def get_all_posts(
             tags=tag.lower() if tag else None,
             users=[author] if author else None,
         ),
+    )
+
+
+@app.post(
+    "/social/users/follow",
+    tags=["Social User"],
+)
+async def follow_social_user(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    user_to_follow_id: FollowUserSchema = Body(...)
+):
+    return await social_controller.handle_follow_social_user(user_id,
+                                                             user_to_follow_id.user_id)
+
+
+@app.post(
+    "/social/users/unfollow",
+    tags=["Social User"],
+)
+async def unfollow_social_user(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    user_to_unfollow_id: FollowUserSchema = Body(...)
+):
+    return await social_controller.handle_unfollow_social_user(
+        user_id,
+        user_to_unfollow_id.user_id
     )
