@@ -137,7 +137,7 @@ class SocialMongoDB(SocialRepository):
         )
         if not followers:
             raise ItemNotFound("Social User", user_id)
-        followers = followers[0].get("following", [])
+        followers = followers[0].get("followers", [])
         return followers
 
     @withMongoExceptionsHandle()

@@ -142,6 +142,8 @@ class SocialService:
         return final_posts
 
     async def follow_social_user(self, user_id, user_to_follow_id):
+        if (user_id == user_to_follow_id):
+            raise BadRequestException("Must follow another user")
         following = self.social_repository.get_following_of(user_id)
         if not await UserService.user_exists(user_to_follow_id):
             raise BadRequestException("User does not exist in the system!")
