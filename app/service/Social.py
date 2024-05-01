@@ -201,6 +201,31 @@ class SocialService:
         updates = PostPartialUpdateSchema(comments=comments)
         await self.update_post(post_id, updates)
         return PostCommentSchema.model_validate(comment)
+  
+    async def delete_post_comment(self, post_id, comment_id):
+        post: Post = self.social_repository.get_post(post_id)
+        if post is None:
+            raise ItemNotFound("Post", post_id)
+
+        comment = find_comment_by_id(post, comment_id)
+
+        if comment is None:
+            raise ItemNotFound("Comment", comment_id)
+
+        comments = post["comments"]
+        for comment in comments:
+            if comment["id"] == comment_id:
+                comments.remove(comment)
+
+        updates = PostPartialUpdateSchema(comments=comments)
+        await self.update_post(post_id, updates)
+
+
+def find_comment_by_id(post: Post, comment_id: str) -> Optional[PostCommentSchema]:
+    for comment in post["comments"]:
+        if comment["id"] == comment_id:
+            return comment
+    return None
 
 
 def map_author_user_id(user, created_post):

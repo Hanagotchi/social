@@ -19,6 +19,10 @@ class CreatePostCommentSchema(BaseModel):
     body: str
 
 
+class DeletePostCommentSchema(BaseModel):
+    comment_id: str
+
+
 class PostCreateSchema(BaseModel):
     author_user_id: int = Field(..., example=1)
     content: str = Field(..., max_length=512)

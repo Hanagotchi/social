@@ -7,6 +7,7 @@ from typing import Annotated
 from app.repository.SocialMongo import SocialMongoDB
 from app.schemas.Post import (
     CreatePostCommentSchema,
+    DeletePostCommentSchema,
     PostCreateSchema,
     PostFilters,
     PostPagination,
@@ -165,17 +166,15 @@ async def comment_post(
     )
 
 
-""" @app.post(
+@app.delete(
     "/social/posts/{post_id}/comments",
     tags=["Post"],
 )
 async def delete_post_comment(
-    user_id: Annotated[int, Depends(get_current_user_id)],
     post_id: str,
-    comment_id: str = Body(...)
+    body: DeletePostCommentSchema = Body(...)
 ):
     return await social_controller.handle_delete_post_comment(
         post_id,
-        user_id,
-        comment_id
-    ) """
+        body.comment_id
+    )

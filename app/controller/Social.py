@@ -128,3 +128,14 @@ class SocialController:
 
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content=jsonable_encoder(comment))
+
+    async def handle_delete_post_comment(
+        self,
+        post_id: str,
+        comment_id: str,
+    ) -> JSONResponse:
+
+        await self.social_service.delete_post_comment(post_id, comment_id)
+
+        return JSONResponse(status_code=status.HTTP_200_OK,
+                            content="Comment deleted successfully")
