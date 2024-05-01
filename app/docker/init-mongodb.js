@@ -11,6 +11,7 @@ db.posts.insertMany([
     "updated_at":  ISODate("2024-04-15T05:33:33.127Z"),
     "comments": [
       {
+        "id": "fdfe6218-64f7-4f89-af36-42b8b035f4c8",
         "author": {
           "id": 2,
           "name": "Sofi",

@@ -163,3 +163,19 @@ async def comment_post(
         user_id,
         comment.body
     )
+
+
+""" @app.post(
+    "/social/posts/{post_id}/comments",
+    tags=["Post"],
+)
+async def delete_post_comment(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    post_id: str,
+    comment_id: str = Body(...)
+):
+    return await social_controller.handle_delete_post_comment(
+        post_id,
+        user_id,
+        comment_id
+    ) """

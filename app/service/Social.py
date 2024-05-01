@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+import uuid
 from typing import List, Optional
 from app.models.Post import Post
 from app.repository.SocialRepository import SocialRepository
@@ -190,6 +191,7 @@ class SocialService:
         author: GetUserSchema = await UserService.get_user(author_id)
         user: ReducedUser = ReducedUser.from_pydantic(author)
         comment: PostCommentSchema = {
+            "id": str(uuid.uuid4()),
             "author": user,
             "content": comment_body,
             "created_at": datetime.now()

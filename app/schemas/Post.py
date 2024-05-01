@@ -9,6 +9,7 @@ Tag = Annotated[str, Field(..., min_length=2, max_length=128)]
 
 
 class PostCommentSchema(BaseModel):
+    id: str = Field(...)
     author: ReducedUser = Field(...)
     content: str = Field(..., max_length=512)
     created_at: datetime
@@ -78,6 +79,7 @@ class PostSchema(PostBaseModel):
                     "https://example.com/photo2.jpg",
                 ],
                 "comments": [{
+                    "id": "fdfe6218-64f7-4f89-af36-42b8b035f4c8",
                     "author": {
                         "id": 2,
                         "name": "Sofi",
@@ -143,6 +145,7 @@ class PostPartialUpdateSchema(BaseModel):
                     "https://example.com/photo123.jpg",
                 ],
                 "comments": [{
+                    "id": "fdfe6218-64f7-4f89-af36-42b8b035f4c8",
                     "author": {
                         "id": 2,
                         "name": "Sofi",
