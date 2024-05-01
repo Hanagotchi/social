@@ -201,7 +201,7 @@ class SocialService:
         updates = PostPartialUpdateSchema(comments=comments)
         await self.update_post(post_id, updates)
         return PostCommentSchema.model_validate(comment)
-  
+
     async def delete_post_comment(self, post_id, comment_id):
         post: Post = self.social_repository.get_post(post_id)
         if post is None:
