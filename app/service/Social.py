@@ -1,9 +1,11 @@
+from datetime import datetime
 import logging
 from typing import List, Optional
 from app.models.Post import Post
 from app.repository.SocialRepository import SocialRepository
 from app.service.Users import UserService
 from app.schemas.Post import (
+    PostCommentSchema,
     PostCreateSchema,
     PostFilters,
     PostInFeedSchema,
@@ -36,9 +38,11 @@ class SocialService:
         user: ReducedUser = ReducedUser.from_pydantic(get_user)
         post = Post.from_pydantic(input_post)
         id_post = self.social_repository.add_post(post)
-        crated_post = self.social_repository.get_post(id_post)
-        map_author_user_id(user, crated_post)
-        return PostSchema.model_validate(crated_post)
+        created_post = self.social_repository.get_post(id_post)
+        print("created: ", created_post)
+        map_author_user_id(user, created_post)
+        print("created w user: ", created_post)
+        return PostSchema.model_validate(created_post)
 
     async def get_post(self, id_post: int) -> PostSchema:
         post: Post = self.social_repository.get_post(id_post)
@@ -179,7 +183,24 @@ class SocialService:
                                             [user_id for user_id in followers]}
         await self.update_social_user(user_to_unfollow_id, updates)
 
+    async def comment_post(self, post_id, author_id, comment_body) -> PostCommentSchema:
+        post: Post = self.social_repository.get_post(post_id)
+        if post is None:
+            raise ItemNotFound("Post", post_id)
+        author: GetUserSchema = await UserService.get_user(author_id)
+        user: ReducedUser = ReducedUser.from_pydantic(author)
+        comment: PostCommentSchema = {
+            "author": user,
+            "content": comment_body,
+            "created_at": datetime.now()
+        }
+        comments = post["comments"]
+        comments.append(comment)
+        updates = PostPartialUpdateSchema(comments=comments)
+        await self.update_post(post_id, updates)
+        return PostCommentSchema.model_validate(comment)
 
-def map_author_user_id(user, crated_post):
-    crated_post["author"] = user
-    crated_post.pop("author_user_id")
+
+def map_author_user_id(user, created_post):
+    created_post["author"] = user
+    created_post.pop("author_user_id")

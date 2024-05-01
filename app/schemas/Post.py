@@ -8,11 +8,22 @@ PhotoUrl = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
 Tag = Annotated[str, Field(..., min_length=2, max_length=128)]
 
 
+class PostCommentSchema(BaseModel):
+    author: ReducedUser = Field(...)
+    content: str = Field(..., max_length=512)
+    created_at: datetime
+
+
+class CreatePostCommentSchema(BaseModel):
+    body: str
+
+
 class PostCreateSchema(BaseModel):
     author_user_id: int = Field(..., example=1)
     content: str = Field(..., max_length=512)
     tags: Optional[list[Tag]] = None
     photo_links: Optional[list[PhotoUrl]] = None
+    comments: list[PostCommentSchema] = []
 
     class Config:
         json_schema_extra = {
@@ -28,6 +39,7 @@ class PostCreateSchema(BaseModel):
                     "https://example.com/photo2.jpg",
                 ],
                 "tags": ["petuñas", "mandarinas"],
+                "comments": []
             }
         }
 
@@ -40,6 +52,7 @@ class PostBaseModel(BaseModel):
     created_at: datetime
     updated_at: datetime
     tags: Optional[list[Tag]] = None
+    comments: list[PostCommentSchema] = []
 
 
 class PostSchema(PostBaseModel):
@@ -64,14 +77,18 @@ class PostSchema(PostBaseModel):
                     "https://example.com/photo1.jpg",
                     "https://example.com/photo2.jpg",
                 ],
+                "comments": [{
+                    "author": {
+                        "id": 2,
+                        "name": "Sofi",
+                        "photo": "ttps://firebasestorage.googleapis.com/v0/b/hanagotchi.appspot.com/o/users%2Fafirmapaz%40fi.uba.ar%2Favatar%2F1712283245166?alt=media&token=a6923ba4-d4ac-4228-bc12-6791ababfedd",
+                        "nickname": "chofimpala"
+                    },
+                    "content": "bien ahi!!",
+                    "created_at": "2024-04-16T05:35:30.127Z"
+                }]
             }
         }
-        # datetime.now(
-        #                         ZoneInfo("America/Argentina/Buenos_Aires")
-        #                     ).isoformat()[:-6]
-        # json_encoders = {datetime: lambda v: datetime.now(
-        #                         ZoneInfo("America/Argentina/Buenos_Aires")
-        #                     ).isoformat()[:-6]}
 
 
 class PostInFeedSchema(PostBaseModel):
@@ -93,6 +110,7 @@ class PostInFeedSchema(PostBaseModel):
                 "updated_at": "2021-08-08T20:00:00",
                 "tags": ["petuñas", "mandarinas"],
                 "main_photo_link": "https://example.com/photo1.jpg",
+                "comments": []
             }
         }
 
@@ -109,6 +127,7 @@ class PostPartialUpdateSchema(BaseModel):
     content: Optional[str] = Field(None, max_length=512)
     tags: Optional[list[Tag]] = None
     photo_links: Optional[list[PhotoUrl]] = None
+    comments: Optional[list[PostCommentSchema]] = None
 
     class Config:
         json_schema_extra = {
@@ -123,6 +142,16 @@ class PostPartialUpdateSchema(BaseModel):
                     "https://example.com/photo5520.jpg",
                     "https://example.com/photo123.jpg",
                 ],
+                "comments": [{
+                    "author": {
+                        "id": 2,
+                        "name": "Sofi",
+                        "photo": "ttps://firebasestorage.googleapis.com/v0/b/hanagotchi.appspot.com/o/users%2Fafirmapaz%40fi.uba.ar%2Favatar%2F1712283245166?alt=media&token=a6923ba4-d4ac-4228-bc12-6791ababfedd",
+                        "nickname": "chofimpala"
+                    },
+                    "content": "bien ahi!!",
+                    "created_at": "2024-04-16T05:35:30.127Z"
+                }]
             }
         }
 

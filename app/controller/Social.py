@@ -1,5 +1,6 @@
 from typing import Optional
 from app.schemas.Post import (
+    PostCommentSchema,
     PostCreateSchema,
     PostFilters,
     PostPagination,
@@ -111,3 +112,19 @@ class SocialController:
 
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content="User unfollowed successfully")
+
+    async def handle_comment_post(
+        self,
+        post_id: str,
+        user_id: str,
+        comment: str,
+    ) -> JSONResponse:
+
+        comment: PostCommentSchema = await self.social_service.comment_post(
+            post_id,
+            user_id,
+            comment
+        )
+
+        return JSONResponse(status_code=status.HTTP_200_OK,
+                            content=jsonable_encoder(comment))
