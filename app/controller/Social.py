@@ -135,7 +135,10 @@ class SocialController:
         comment_id: str,
     ) -> JSONResponse:
 
-        await self.social_service.delete_post_comment(post_id, comment_id)
+        response = await self.social_service.delete_post_comment(post_id, comment_id)
+
+        if (response is None):
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
 
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content="Comment deleted successfully")

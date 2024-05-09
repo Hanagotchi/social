@@ -202,7 +202,7 @@ class SocialService:
         await self.update_post(post_id, updates)
         return PostCommentSchema.model_validate(comment)
 
-    async def delete_post_comment(self, post_id, comment_id):
+    async def delete_post_comment(self, post_id, comment_id) -> str:
         post: Post = self.social_repository.get_post(post_id)
         if post is None:
             raise ItemNotFound("Post", post_id)
@@ -210,7 +210,7 @@ class SocialService:
         comment = find_comment_by_id(post, comment_id)
 
         if comment is None:
-            raise ItemNotFound("Comment", comment_id)
+            return None
 
         comments = post["comments"]
         for comment in comments:
@@ -219,6 +219,7 @@ class SocialService:
 
         updates = PostPartialUpdateSchema(comments=comments)
         await self.update_post(post_id, updates)
+        return comment_id
 
 
 def find_comment_by_id(post: Post, comment_id: str) -> Optional[PostCommentSchema]:
