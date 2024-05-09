@@ -49,6 +49,8 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest tests/
+        env:
+          USERS_SERVICE_URL: dummy:5000
           
     #   - name: Build coverage file
     #     run: |
