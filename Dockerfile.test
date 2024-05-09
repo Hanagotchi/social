@@ -12,9 +12,9 @@ COPY pyproject.toml poetry.lock ./
 
 ENV POETRY_VIRTUALENVS_IN_PROJECT true
 
-RUN poetry install -E dev
+RUN poetry lock
 
-EXPOSE ${PORT}
+RUN poetry install -E dev
 
 COPY tests/ tests/
 

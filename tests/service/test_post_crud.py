@@ -17,7 +17,6 @@ from fastapi import HTTPException
 from app.exceptions.NotFoundException import ItemNotFound
 
 
-os.environ["USERS_SERVICE_URL"] = "http://dummy:xd"
 load_dotenv()
 logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
@@ -49,7 +48,6 @@ async def mock_get_user_service(*args, **kwargs):
 
 @pytest.fixture(autouse=True)
 def test(monkeypatch):
-    
     # Mocking UserService.get
     monkeypatch.setattr("app.service.Users.UserService.get", mock_get_user_service)
     # Mocking MongoClient!
