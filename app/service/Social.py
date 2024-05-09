@@ -61,7 +61,11 @@ class SocialService:
         for comment in post['comments']:
             get_user: GetUserSchema = await UserService.get_user(comment['author'])
             author: ReducedUser = ReducedUser.from_pydantic(get_user)
-            valid_comment = GetPostCommentSchema(id=comment['id'], author=author, content=comment['content'], created_at=comment['created_at'])
+            valid_comment = GetPostCommentSchema(id=comment['id'],
+                                                 author=author,
+                                                 content=comment['content'],
+                                                 created_at=comment['created_at']
+                                                 )
             final_comments.append(valid_comment)
 
         return GetPostSchema(
