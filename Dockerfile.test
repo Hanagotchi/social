@@ -1,0 +1,23 @@
+FROM python:3.11-slim-buster
+
+WORKDIR /tests
+
+RUN apt-get update \
+    && apt-get -y install libpq-dev gcc \
+    && pip install psycopg2
+    
+RUN pip install poetry
+
+COPY pyproject.toml poetry.lock ./
+
+ENV POETRY_VIRTUALENVS_IN_PROJECT true
+
+RUN poetry install -E dev
+
+EXPOSE ${PORT}
+
+COPY tests/ tests/
+
+COPY . .
+
+CMD ["poetry", "run", "pytest", "tests"]
