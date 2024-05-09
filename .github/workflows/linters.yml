@@ -33,3 +33,4 @@ jobs:
         uses: py-actions/flake8@v1.2.0
         with:
           max-line-length: "88"
+          path: "./app"
