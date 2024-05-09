@@ -1,6 +1,7 @@
 import pytest
 import logging
 import mongomock
+import os
 import re
 
 from dotenv import load_dotenv
@@ -17,6 +18,7 @@ from app.exceptions.NotFoundException import ItemNotFound
 
 
 load_dotenv()
+os.environ["USERS_SERVICE_URL"] = "http://dummy:xd"
 logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
 
