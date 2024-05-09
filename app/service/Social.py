@@ -159,7 +159,7 @@ class SocialService:
 
         for post in fetched_posts:
             author_id = post["author_user_id"]
-            get_user: GetUserSchema = users_fetched_hash.get(author_id)
+            get_user: GetUserSchema = await UserService.get_user(author_id)
             user: ReducedUser = ReducedUser.from_pydantic(get_user)
             map_author_user_id(user, post)
             valid_post = PostInFeedSchema.from_post(PostSchema.model_validate(post))

@@ -4,7 +4,7 @@ db.createCollection('posts');
 db.createCollection('users');
 db.posts.insertMany([
   {
-    "author_user_id": 1,
+    "author_user_id": 17,
     "content": "Mi Primera Publicacion :D",
     "likes_count" : 0,
     "created_at": ISODate("2024-04-15T05:33:33.127Z"),
@@ -12,7 +12,7 @@ db.posts.insertMany([
     "comments": [
       {
         "id": "fdfe6218-64f7-4f89-af36-42b8b035f4c8",
-        "author": 2,
+        "author": 11,
         "content": "bien ahi!!",
         "created_at": ISODate("2024-04-16T05:35:30.127Z")
       }
@@ -21,7 +21,7 @@ db.posts.insertMany([
     "photo_links": [],
   },
   {
-    "author_user_id": 1,
+    "author_user_id": 17,
     "content": "Ya soy influenceeeer",
     "likes_count" : 0,
     "created_at": ISODate("2024-04-19T02:15:30.217Z"),

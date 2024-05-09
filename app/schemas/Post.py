@@ -33,7 +33,7 @@ class PostCreateSchema(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "author_user_id": 1,
+                "author_user_id": 17,
                 "content": (
                     "Mi buena petuña es hermosa. "
                     "Crece, crece y crece, "
@@ -68,7 +68,7 @@ class PostSchema(PostBaseModel):
         json_schema_extra = {
             "example": {
                 "id": 1,
-                "author": 1,
+                "author": 17,
                 "content": (
                     "Mi buena petuña es hermosa. "
                     "Crece, crece y crece, "
@@ -84,7 +84,7 @@ class PostSchema(PostBaseModel):
                 ],
                 "comments": [{
                     "id": "fdfe6218-64f7-4f89-af36-42b8b035f4c8",
-                    "author": 2,
+                    "author": 11,
                     "content": "bien ahi!!",
                     "created_at": "2024-04-16T05:35:30.127Z"
                 }]
@@ -100,7 +100,7 @@ class PostInFeedSchema(PostBaseModel):
         json_schema_extra = {
             "example": {
                 "id": 1,
-                "author_user_id": 1,
+                "author_user_id": 17,
                 "content": (
                     "Mi buena petuña es hermosa. "
                     "Crece, crece y crece, "
@@ -128,7 +128,6 @@ class PostPartialUpdateSchema(BaseModel):
     content: Optional[str] = Field(None, max_length=512)
     tags: Optional[list[Tag]] = None
     photo_links: Optional[list[PhotoUrl]] = None
-    comments: Optional[list[PostCommentSchema]] = None
 
     class Config:
         json_schema_extra = {
@@ -142,13 +141,7 @@ class PostPartialUpdateSchema(BaseModel):
                 "photo_links": [
                     "https://example.com/photo5520.jpg",
                     "https://example.com/photo123.jpg",
-                ],
-                "comments": [{
-                    "id": "fdfe6218-64f7-4f89-af36-42b8b035f4c8",
-                    "author": 2,
-                    "content": "bien ahi!!",
-                    "created_at": "2024-04-16T05:35:30.127Z"
-                }]
+                ]
             }
         }
 
