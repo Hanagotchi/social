@@ -6,6 +6,8 @@ from app.models.Post import Post
 from app.repository.SocialRepository import SocialRepository
 from app.service.Users import UserService
 from app.schemas.Post import (
+    GetPostCommentSchema,
+    GetPostSchema,
     PostCommentSchema,
     PostCreateSchema,
     PostFilters,
@@ -49,10 +51,29 @@ class SocialService:
         post: Post = self.social_repository.get_post(id_post)
         if post is None:
             raise ItemNotFound("Post", id_post)
+
         get_user: GetUserSchema = await UserService.get_user(post["author_user_id"])
         user: ReducedUser = ReducedUser.from_pydantic(get_user)
         map_author_user_id(user, post)
-        return PostSchema.model_validate(post)
+
+        final_comments = []
+
+        for comment in post['comments']:
+            get_user: GetUserSchema = await UserService.get_user(comment['author'])
+            author: ReducedUser = ReducedUser.from_pydantic(get_user)
+            valid_comment = GetPostCommentSchema(id=comment['id'], author=author, content=comment['content'], created_at=comment['created_at'])
+            final_comments.append(valid_comment)
+
+        return GetPostSchema(
+                    id=post['id'],
+                    author=user,
+                    content=post['content'],
+                    likes_count=post['likes_count'],
+                    created_at=post['created_at'],
+                    updated_at=post['updated_at'],
+                    tags=post['tags'],
+                    comments=final_comments
+                )
 
     async def update_post(
         self,
@@ -188,11 +209,10 @@ class SocialService:
         post: Post = self.social_repository.get_post(post_id)
         if post is None:
             raise ItemNotFound("Post", post_id)
-        author: GetUserSchema = await UserService.get_user(author_id)
-        user: ReducedUser = ReducedUser.from_pydantic(author)
+
         comment: PostCommentSchema = {
             "id": str(uuid.uuid4()),
-            "author": user,
+            "author": author_id,
             "content": comment_body,
             "created_at": datetime.now()
         }

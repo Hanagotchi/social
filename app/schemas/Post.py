@@ -10,7 +10,7 @@ Tag = Annotated[str, Field(..., min_length=2, max_length=128)]
 
 class PostCommentSchema(BaseModel):
     id: str = Field(...)
-    author: ReducedUser = Field(...)
+    author: int = Field(..., example=1)
     content: str = Field(..., max_length=512)
     created_at: datetime
 
@@ -68,7 +68,7 @@ class PostSchema(PostBaseModel):
         json_schema_extra = {
             "example": {
                 "id": 1,
-                "author_user_id": 1,
+                "author": 1,
                 "content": (
                     "Mi buena petuña es hermosa. "
                     "Crece, crece y crece, "
@@ -84,15 +84,7 @@ class PostSchema(PostBaseModel):
                 ],
                 "comments": [{
                     "id": "fdfe6218-64f7-4f89-af36-42b8b035f4c8",
-                    "author": {
-                        "id": 2,
-                        "name": "Sofi",
-                        "photo": "https://firebasestorage.googleapis.com/v0/b/"
-                        "hanagotchi.appspot.com/o/"
-                        "users%2Fafirmapaz%40fi.uba.ar%2Favatar%2F1712283245166?"
-                        "alt=media&token=a6923ba4-d4ac-4228-bc12-6791ababfedd",
-                        "nickname": "chofimpala"
-                    },
+                    "author": 2,
                     "content": "bien ahi!!",
                     "created_at": "2024-04-16T05:35:30.127Z"
                 }]
@@ -153,20 +145,30 @@ class PostPartialUpdateSchema(BaseModel):
                 ],
                 "comments": [{
                     "id": "fdfe6218-64f7-4f89-af36-42b8b035f4c8",
-                    "author": {
-                        "id": 2,
-                        "name": "Sofi",
-                        "photo": "https://firebasestorage.googleapis.com/v0/b/"
-                        "hanagotchi.appspot.com/o/"
-                        "users%2Fafirmapaz%40fi.uba.ar%2Favatar%2F1712283245166?"
-                        "alt=media&token=a6923ba4-d4ac-4228-bc12-6791ababfedd",
-                        "nickname": "chofimpala"
-                    },
+                    "author": 2,
                     "content": "bien ahi!!",
                     "created_at": "2024-04-16T05:35:30.127Z"
                 }]
             }
         }
+
+
+class GetPostCommentSchema(BaseModel):
+    id: str = Field(...)
+    author: ReducedUser = Field(...)
+    content: str = Field(..., max_length=512)
+    created_at: datetime
+
+
+class GetPostSchema(BaseModel):
+    id: str = Field(...)
+    author: ReducedUser = Field(...)
+    content: str = Field(..., max_length=512)
+    likes_count: int = Field(default=0)
+    created_at: datetime
+    updated_at: datetime
+    tags: Optional[list[Tag]] = None
+    comments: list[GetPostCommentSchema] = []
 
 
 class PostPagination(BaseModel):
