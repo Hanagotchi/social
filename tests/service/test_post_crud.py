@@ -17,8 +17,8 @@ from fastapi import HTTPException
 from app.exceptions.NotFoundException import ItemNotFound
 
 
-load_dotenv()
 os.environ["USERS_SERVICE_URL"] = "http://dummy:xd"
+load_dotenv()
 logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
 
