@@ -59,25 +59,11 @@ class SocialService:
         )
         return await self.get_post(id_post)
 
-    async def update_social_user(
-        self,
-        id_user: str,
-        update_user_set: UserPartialUpdateSchema,
-    ) -> Optional[SocialUserSchema]:
-        update_user_obj = UserPartialUpdateSchema.parse_obj(update_user_set)
-        self.social_repository.update_user(
-            id_user,
-            update_user_obj.model_dump_json(exclude_none=True)
-        )
-        self.social_repository.update_user(
-            id_user,
-            update_user_obj.model_dump_json(exclude_none=True)
-        )
-        return await self.get_social_user(id_user)
-
     def delete_post(self, id_post: str):
         row_count = self.social_repository.delete_post(id_post)
         return row_count
+
+
 
     async def create_social_user(
         self, input_user: SocialUserCreateSchema
@@ -103,6 +89,22 @@ class SocialService:
                 'nickname': get_user.nickname
                 }
         return UserSchema.model_validate(user)
+
+    async def update_social_user(
+        self,
+        id_user: str,
+        update_user_set: UserPartialUpdateSchema,
+    ) -> Optional[SocialUserSchema]:
+        update_user_obj = UserPartialUpdateSchema.parse_obj(update_user_set)
+        self.social_repository.update_user(
+            id_user,
+            update_user_obj.model_dump_json(exclude_none=True)
+        )
+        self.social_repository.update_user(
+            id_user,
+            update_user_obj.model_dump_json(exclude_none=True)
+        )
+        return await self.get_social_user(id_user)
 
     async def get_my_feed(
         self, user_id: int, pagination: PostPagination
