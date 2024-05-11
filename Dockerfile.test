@@ -21,5 +21,3 @@ COPY tests/ tests/
 COPY . .
 
 CMD ["poetry", "run", "pytest", "app"]
-
-# docker build -t test-social -f Dockerfile.test . && docker run test-social

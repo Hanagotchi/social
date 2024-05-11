@@ -4,3 +4,4 @@ ignore:
   # Excluir un archivo específico
   - 'app/main.py'
   - 'app/controller/Social.py'
+  - 'app/service/Users.py'
