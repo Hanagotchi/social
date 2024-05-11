@@ -16,7 +16,8 @@ from app.schemas.Post import (
 )
 from app.service.Social import SocialService
 from app.schemas.RealUser import ReducedUser
-from app.exceptions.InternalServerErrorException import InternalServerErrorException
+from app.exceptions.InternalServerErrorException \
+    import InternalServerErrorException
 from fastapi import HTTPException
 
 from app.exceptions.NotFoundException import ItemNotFound
@@ -42,7 +43,7 @@ async def mock_get_user_service_with_three_valid_ids(*args, **kwargs):
         if 1 not in users_ids and 5 not in users_ids and 10 not in users_ids:
             logger.error(f"Users {users_ids} not found")
             return HTTPException(
-                status_code=404, detail=f"Users with ids {users_ids} not found!"
+                status_code=404, detail=f"Users with ids {users_ids} not found"
             )
         print(f"[USERS IDS b ]: {users_ids}")
 
@@ -115,7 +116,8 @@ async def mock_get_user_service_with_three_valid_ids(*args, **kwargs):
 def test(monkeypatch):
     # Mocking UserService.get
     monkeypatch.setattr(
-        "app.service.Users.UserService.get", mock_get_user_service_with_three_valid_ids
+        "app.service.Users.UserService.get",
+        mock_get_user_service_with_three_valid_ids
     )
     # Mocking MongoClient!
     db = mongomock.MongoClient()
@@ -210,7 +212,8 @@ async def test_given_post_id_not_found_when_get_post_by_id_then_raise_not_found_
         await social_service.get_post(post_id)
 
     # Then
-    assert str(excinfo.value) == "404: Post with id 123c252869510e3f2d442b7e not found"
+    assert str(excinfo.value) == "404: Post with id " + \
+        "123c252869510e3f2d442b7e not found"
 
 
 @pytest.mark.asyncio
@@ -224,7 +227,7 @@ async def test_given_post_id_when_update_one_field_then_return_post_schema_with_
     )
     res_create_post: PostSchema = await social_service.create_post(input_post)
     post_id = res_create_post.id
-    input_post_to_update = PostPartialUpdateSchema(content="Hello world updated")
+    input_post_to_update = PostPartialUpdateSchema(content="Hello updated")
 
     # When
     res_update_post: PostSchema = await social_service.update_post(
@@ -232,7 +235,7 @@ async def test_given_post_id_when_update_one_field_then_return_post_schema_with_
     )
 
     # Then
-    assert res_update_post.content == "Hello world updated"
+    assert res_update_post.content == "Hello updated"
     assert res_update_post.photo_links == ["https://example.com/photo.jpg"]
     assert res_update_post.tags == ["tag1", "tag2"]
     assert res_update_post.author == ReducedUser(
@@ -256,7 +259,7 @@ async def test_given_post_id_when_update_photo_links_then_return_post_schema_wit
     post_id = res_create_post.id
     input_post_to_update = PostPartialUpdateSchema(
         content="Hello world updated",
-        photo_links=["https://example.com/photo2_new.jpg"],
+        photo_links=["https://exampl.com/photo2_new.jpg"],
     )
 
     # When
@@ -266,7 +269,7 @@ async def test_given_post_id_when_update_photo_links_then_return_post_schema_wit
 
     # Then
     assert res_update_post.content == "Hello world updated"
-    assert res_update_post.photo_links == ["https://example.com/photo2_new.jpg"]
+    assert res_update_post.photo_links == ["https://exampl.com/photo2_new.jpg"]
 
 
 @pytest.mark.asyncio
@@ -303,7 +306,7 @@ async def test_given_post_id_when_update_all_fields_then_return_post_schema_with
     post_id = res_create_post.id
     input_post_to_update = PostPartialUpdateSchema(
         content="Hello world updated",
-        photo_links=["https://example.com/photo2_new.jpg"],
+        photo_links=["https://exampl.com/photo2_new.jpg"],
         tags=["tag3", "tag4"],
     )
 
@@ -314,7 +317,7 @@ async def test_given_post_id_when_update_all_fields_then_return_post_schema_with
 
     # Then
     assert res_update_post.content == "Hello world updated"
-    assert res_update_post.photo_links == ["https://example.com/photo2_new.jpg"]
+    assert res_update_post.photo_links == ["https://exampl.com/photo2_new.jpg"]
     assert res_update_post.tags == ["tag3", "tag4"]
 
 
@@ -371,7 +374,8 @@ async def test_given_user_id_not_exists_when_create_social_user_then_raise_bad_r
         await social_service.create_social_user(input_user)
 
     # Then
-    assert str(excinfo.value) == "400: Bad request: user does not exist in the system!"
+    assert str(excinfo.value) == "400: Bad request: " + \
+        "user does not exist in the system!"
 
 
 @pytest.mark.asyncio
@@ -415,7 +419,8 @@ async def test_given_social_user_when_follow_social_user_then_follow_user():
     res_create_user_2 = await social_service.create_social_user(input_user_2)
 
     # When
-    await social_service.follow_social_user(res_create_user_1.id, res_create_user_2.id)
+    await social_service.follow_social_user(res_create_user_1.id,
+                                            res_create_user_2.id)
 
     # Then
     res_get_user_1 = await social_service.get_social_user(res_create_user_1.id)
@@ -435,8 +440,10 @@ async def test_given_two_social_users_when_follow_mutual_then_follow_each_other(
     res_create_user_2 = await social_service.create_social_user(input_user_2)
 
     # When
-    await social_service.follow_social_user(res_create_user_1.id, res_create_user_2.id)
-    await social_service.follow_social_user(res_create_user_2.id, res_create_user_1.id)
+    await social_service.follow_social_user(res_create_user_1.id,
+                                            res_create_user_2.id)
+    await social_service.follow_social_user(res_create_user_2.id,
+                                            res_create_user_1.id)
 
     # Then
     res_get_user_1 = await social_service.get_social_user(res_create_user_1.id)
@@ -455,7 +462,8 @@ async def test_given_social_user_when_follow_itself_then_raise_bad_request_excep
 
     # When
     with pytest.raises(BadRequestException) as excinfo:
-        await social_service.follow_social_user(res_create_user.id, res_create_user.id)
+        await social_service.follow_social_user(res_create_user.id,
+                                                res_create_user.id)
 
     # Then
     assert str(excinfo.value) == "400: Bad request: must follow another user"
@@ -472,7 +480,8 @@ async def test_given_social_user_when_follow_inexistent_user_then_raise_bad_requ
         await social_service.follow_social_user(res_create_user.id, 2)
 
     # Then
-    assert str(excinfo.value) == "400: Bad request: user does not exist in the system!"
+    assert str(excinfo.value) == "400: Bad request: " + \
+        "user does not exist in the system!"
 
 
 @pytest.mark.asyncio
@@ -482,7 +491,8 @@ async def test_given_social_followed_user_when_unfollow_then_unfollow_user():
     res_create_user_1 = await social_service.create_social_user(input_user_1)
     input_user_2 = SocialUserCreateSchema(id=5)
     res_create_user_2 = await social_service.create_social_user(input_user_2)
-    await social_service.follow_social_user(res_create_user_1.id, res_create_user_2.id)
+    await social_service.follow_social_user(res_create_user_1.id,
+                                            res_create_user_2.id)
 
     # When
     await social_service.unfollow_social_user(
@@ -505,8 +515,10 @@ async def test_given_social_user_mutual_followed_when_unfollow_then_unfollow_eac
     res_create_user_1 = await social_service.create_social_user(input_user_1)
     input_user_2 = SocialUserCreateSchema(id=5)
     res_create_user_2 = await social_service.create_social_user(input_user_2)
-    await social_service.follow_social_user(res_create_user_1.id, res_create_user_2.id)
-    await social_service.follow_social_user(res_create_user_2.id, res_create_user_1.id)
+    await social_service.follow_social_user(res_create_user_1.id,
+                                            res_create_user_2.id)
+    await social_service.follow_social_user(res_create_user_2.id,
+                                            res_create_user_1.id)
 
     # When
     await social_service.unfollow_social_user(
@@ -552,7 +564,8 @@ async def test_given_social_user_when_unfollow_inexistent_user_then_raise_bad_re
         await social_service.unfollow_social_user(res_create_user.id, 2)
 
     # Then
-    assert str(excinfo.value) == "400: Bad request: user does not exist in the system!"
+    assert str(excinfo.value) == "400: Bad request:" + \
+        " user does not exist in the system!"
 
 
 @pytest.mark.asyncio
@@ -563,14 +576,14 @@ async def test_given_user_with_posts_when_get_my_feed_then_return_posts_showing_
     input_post_1_of_user_1 = PostCreateSchema(
         author_user_id=input_user_1.id, content="Hello world 1"
     )
-    post_schema_1 = await social_service.create_post(input_post_1_of_user_1)
+    await social_service.create_post(input_post_1_of_user_1)
     input_post_2_of_user_1 = PostCreateSchema(
         author_user_id=input_user_1.id, content="Hello world 2"
     )
 
     # ._.
     await sleep(0.1)
-    post_schema_2 = await social_service.create_post(input_post_2_of_user_1)
+    await social_service.create_post(input_post_2_of_user_1)
 
     # When
     res_get_my_feed = await social_service.get_my_feed(
@@ -608,14 +621,14 @@ async def test_given_user_with_posts_when_get_my_feed_with_one_post_per_page_the
     input_post_1_of_user_1 = PostCreateSchema(
         author_user_id=input_user_1.id, content="Hello world 1"
     )
-    post_schema_1 = await social_service.create_post(input_post_1_of_user_1)
+    await social_service.create_post(input_post_1_of_user_1)
     input_post_2_of_user_1 = PostCreateSchema(
         author_user_id=input_user_1.id, content="Hello world 2"
     )
 
     # ._.
     await sleep(0.1)
-    post_schema_2 = await social_service.create_post(input_post_2_of_user_1)
+    await social_service.create_post(input_post_2_of_user_1)
 
     # When
     res_get_my_feed = await social_service.get_my_feed(
@@ -636,14 +649,14 @@ async def test_given_user_with_posts_when_get_my_feed_with_other_page_then_retur
     input_post_1_of_user_1 = PostCreateSchema(
         author_user_id=input_user_1.id, content="Hello world 1"
     )
-    post_schema_1 = await social_service.create_post(input_post_1_of_user_1)
+    await social_service.create_post(input_post_1_of_user_1)
     input_post_2_of_user_1 = PostCreateSchema(
         author_user_id=input_user_1.id, content="Hello world 2"
     )
 
     # ._.
     await sleep(0.1)
-    post_schema_2 = await social_service.create_post(input_post_2_of_user_1)
+    await social_service.create_post(input_post_2_of_user_1)
 
     # When
     res_get_my_feed = await social_service.get_my_feed(
@@ -663,14 +676,14 @@ async def test_given_user_with_posts_when_get_my_feed_with_time_offset_one_day_a
     input_post_1_of_user_1 = PostCreateSchema(
         author_user_id=input_user_1.id, content="Hello world 1"
     )
-    post_schema_1 = await social_service.create_post(input_post_1_of_user_1)
+    await social_service.create_post(input_post_1_of_user_1)
     input_post_2_of_user_1 = PostCreateSchema(
         author_user_id=input_user_1.id, content="Hello world 2"
     )
 
     # ._.
     await sleep(0.1)
-    post_schema_2 = await social_service.create_post(input_post_2_of_user_1)
+    await social_service.create_post(input_post_2_of_user_1)
 
     # When
     res_get_my_feed = await social_service.get_my_feed(
@@ -697,19 +710,24 @@ async def test_given_user_with_posts_and_users_followed_when_get_my_feed_then_re
         SocialUserCreateSchema(id=10)
     )
 
-    await social_service.follow_social_user(res_create_user_1.id, res_create_user_2.id)
-    await social_service.follow_social_user(res_create_user_1.id, res_create_user_3.id)
+    await social_service.follow_social_user(res_create_user_1.id,
+                                            res_create_user_2.id)
+    await social_service.follow_social_user(res_create_user_1.id,
+                                            res_create_user_3.id)
 
-    post_schema_1 = await social_service.create_post(
-        PostCreateSchema(author_user_id=res_create_user_1.id, content="Hello world 1")
+    await social_service.create_post(
+        PostCreateSchema(author_user_id=res_create_user_1.id,
+                         content="Hello world 1")
     )
     await sleep(0.1)
-    post_schema_2 = await social_service.create_post(
-        PostCreateSchema(author_user_id=res_create_user_2.id, content="Hello world 2")
+    await social_service.create_post(
+        PostCreateSchema(author_user_id=res_create_user_2.id,
+                         content="Hello world 2")
     )
     await sleep(0.1)
-    post_schema_3 = await social_service.create_post(
-        PostCreateSchema(author_user_id=res_create_user_3.id, content="Hello world 3")
+    await social_service.create_post(
+        PostCreateSchema(author_user_id=res_create_user_3.id,
+                         content="Hello world 3")
     )
 
     # When
@@ -738,19 +756,24 @@ async def test_given_user_with_posts_and_users_followed_when_get_my_feed_with_pa
         SocialUserCreateSchema(id=10)
     )
 
-    await social_service.follow_social_user(res_create_user_1.id, res_create_user_2.id)
-    await social_service.follow_social_user(res_create_user_1.id, res_create_user_3.id)
+    await social_service.follow_social_user(res_create_user_1.id,
+                                            res_create_user_2.id)
+    await social_service.follow_social_user(res_create_user_1.id,
+                                            res_create_user_3.id)
 
-    post_schema_1 = await social_service.create_post(
-        PostCreateSchema(author_user_id=res_create_user_1.id, content="Hello world 1")
+    await social_service.create_post(
+        PostCreateSchema(author_user_id=res_create_user_1.id,
+                         content="Hello world 1")
     )
     await sleep(0.1)
-    post_schema_2 = await social_service.create_post(
-        PostCreateSchema(author_user_id=res_create_user_2.id, content="Hello world 2")
+    await social_service.create_post(
+        PostCreateSchema(author_user_id=res_create_user_2.id,
+                         content="Hello world 2")
     )
     await sleep(0.1)
-    post_schema_3 = await social_service.create_post(
-        PostCreateSchema(author_user_id=res_create_user_3.id, content="Hello world 3")
+    await social_service.create_post(
+        PostCreateSchema(author_user_id=res_create_user_3.id,
+                         content="Hello world 3")
     )
 
     # When (1)
@@ -797,25 +820,32 @@ async def test_given_user_with_posts_and_users_followed_when_get_my_feed_with_ti
         SocialUserCreateSchema(id=10)
     )
 
-    await social_service.follow_social_user(res_create_user_1.id, res_create_user_2.id)
-    await social_service.follow_social_user(res_create_user_1.id, res_create_user_3.id)
+    await social_service.follow_social_user(res_create_user_1.id,
+                                            res_create_user_2.id)
+    await social_service.follow_social_user(res_create_user_1.id,
+                                            res_create_user_3.id)
 
-    post_schema_1 = await social_service.create_post(
-        PostCreateSchema(author_user_id=res_create_user_1.id, content="Hello world 1")
+    await social_service.create_post(
+        PostCreateSchema(author_user_id=res_create_user_1.id,
+                         content="Hello world 1")
     )
     await sleep(0.1)
     post_schema_2 = await social_service.create_post(
-        PostCreateSchema(author_user_id=res_create_user_2.id, content="Hello world 2")
+        PostCreateSchema(author_user_id=res_create_user_2.id,
+                         content="Hello world 2")
     )
     await sleep(0.1)
-    post_schema_3 = await social_service.create_post(
-        PostCreateSchema(author_user_id=res_create_user_3.id, content="Hello world 3")
+    await social_service.create_post(
+        PostCreateSchema(author_user_id=res_create_user_3.id,
+                         content="Hello world 3")
     )
 
     # When
     res_get_my_feed = await social_service.get_my_feed(
         res_create_user_1.id,
-        PostPagination(time_offset=post_schema_2.created_at, page=1, per_page=5),
+        PostPagination(time_offset=post_schema_2.created_at,
+                       page=1,
+                       per_page=5),
     )
 
     # Then

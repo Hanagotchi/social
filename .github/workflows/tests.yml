@@ -48,7 +48,7 @@ jobs:
       - name: Run tests
         run: |
           source .venv/bin/activate
-          pytest tests/
+          pytest app/
         env:
           USERS_SERVICE_URL: dummy:5000
           
