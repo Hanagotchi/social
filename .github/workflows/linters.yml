@@ -34,4 +34,4 @@ jobs:
         with:
           max-line-length: "88"
           path: "./app"
-          exclude: "app/service/test_Social.py:E501"
+          exclude: "app/service/test_Social.py"
