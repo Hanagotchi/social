@@ -48,9 +48,9 @@ class UserService:
     @staticmethod
     async def get_users(users_ids_to_fetch: list) -> list:
         try:
-            response = await UserService.get(
-                f"/users?ids={','.join(map(str, users_ids_to_fetch))}"
-            )
+            path = f"/users?ids={','.join(map(str, users_ids_to_fetch))}"
+            print(f"[PATH]: {path}")
+            response = await UserService.get(path)
             if response.status_code == 200:
                 users = response.json()["message"]
                 return [GetUserSchema(**user) for user in users]
