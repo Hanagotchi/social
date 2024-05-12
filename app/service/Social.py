@@ -59,22 +59,6 @@ class SocialService:
         )
         return await self.get_post(id_post)
 
-    async def update_social_user(
-        self,
-        id_user: str,
-        update_user_set: UserPartialUpdateSchema,
-    ) -> Optional[SocialUserSchema]:
-        update_user_obj = UserPartialUpdateSchema.parse_obj(update_user_set)
-        self.social_repository.update_user(
-            id_user,
-            update_user_obj.model_dump_json(exclude_none=True)
-        )
-        self.social_repository.update_user(
-            id_user,
-            update_user_obj.model_dump_json(exclude_none=True)
-        )
-        return await self.get_social_user(id_user)
-
     def delete_post(self, id_post: str):
         row_count = self.social_repository.delete_post(id_post)
         return row_count
@@ -104,6 +88,18 @@ class SocialService:
                 }
         return UserSchema.model_validate(user)
 
+    async def _update_social_user(
+        self,
+        id_user: str,
+        update_user_set: UserPartialUpdateSchema,
+    ) -> Optional[SocialUserSchema]:
+        update_user_obj = UserPartialUpdateSchema.parse_obj(update_user_set)
+        self.social_repository.update_user(
+            id_user,
+            update_user_obj.model_dump_json(exclude_none=True)
+        )
+        return await self.get_social_user(id_user)
+
     async def get_my_feed(
         self, user_id: int, pagination: PostPagination
     ) -> List[PostInFeedSchema]:
@@ -111,9 +107,9 @@ class SocialService:
         following.append(user_id)  # Add the user itself to the feed!
         filters = PostFilters(pagination=pagination, users=following, tags=None)
         print(f"[FILTERS]: {filters}")
-        return await self.get_all(filters)
+        return await self._get_all(filters)
 
-    async def get_all(self, filters: PostFilters) -> List[PostSchema]:
+    async def _get_all(self, filters: PostFilters) -> List[PostSchema]:
         cursor = self.social_repository.get_posts_by(filters)
         fetched_posts = []
         users_ids_to_fetch = set()
@@ -122,6 +118,9 @@ class SocialService:
             author_id = post["author_user_id"]
             users_ids_to_fetch.add(author_id)
             fetched_posts.append(post)
+
+        if fetched_posts == []:
+            return []
 
         users_fetched_hash = {}
         users_fetched_list = await UserService.get_users(list(users_ids_to_fetch))
@@ -152,15 +151,17 @@ class SocialService:
         following.append(user_to_follow_id)
         updates: UserPartialUpdateSchema = {"following":
                                             [user_id for user_id in following]}
-        await self.update_social_user(user_id, updates)
+        await self._update_social_user(user_id, updates)
 
         followers = self.social_repository.get_followers_of(user_to_follow_id)
         followers.append(user_id)
         updates: UserPartialUpdateSchema = {"followers":
                                             [user_id for user_id in followers]}
-        await self.update_social_user(user_to_follow_id, updates)
+        await self._update_social_user(user_to_follow_id, updates)
 
     async def unfollow_social_user(self, user_id, user_to_unfollow_id):
+        if (user_id == user_to_unfollow_id):
+            raise BadRequestException("Must unfollow another user")
         following = self.social_repository.get_following_of(user_id)
         if not await UserService.user_exists(user_to_unfollow_id):
             raise BadRequestException("User does not exist in the system!")
@@ -169,7 +170,7 @@ class SocialService:
         following.remove(user_to_unfollow_id)
         updates: UserPartialUpdateSchema = {"following":
                                             [user_id for user_id in following]}
-        await self.update_social_user(user_id, updates)
+        await self._update_social_user(user_id, updates)
 
         followers = self.social_repository.get_followers_of(user_to_unfollow_id)
         if user_id not in followers:
@@ -177,7 +178,7 @@ class SocialService:
         followers.remove(user_id)
         updates: UserPartialUpdateSchema = {"followers":
                                             [user_id for user_id in followers]}
-        await self.update_social_user(user_to_unfollow_id, updates)
+        await self._update_social_user(user_to_unfollow_id, updates)
 
 
 def map_author_user_id(user, crated_post):

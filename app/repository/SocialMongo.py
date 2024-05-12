@@ -20,8 +20,11 @@ class SocialMongoDB(SocialRepository):
     db_url = environ.get("MONGO_URL")
     client = pymongo.MongoClient(db_url)
 
+    def get_client(self):
+        return self.client
+
     def __init__(self):
-        self.database = self.client["social_service"]
+        self.database = self.get_client()["social_service"]
         self.posts_collection = self.database["posts"]
         self.users_collection = self.database["users"]
 
