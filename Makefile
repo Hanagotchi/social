@@ -1,5 +1,8 @@
 default: docker-compose-up
 
+docker-test:
+	docker build -t test-social -f Dockerfile.test . && docker run test-social && docker rmi test-social -f
+
 all:
 
 create-network:

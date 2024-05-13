@@ -1,0 +1,67 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  test:
+    name: Tests microservice
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install Poetry
+        run:  pip3 install poetry
+        
+      - name: Create VirtualEnvs
+        run: poetry config virtualenvs.create true
+        
+      - name: Enable VirtualEnvs
+        run: poetry config virtualenvs.in-project true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies if cache does not exist
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install -E dev --no-interaction --no-root
+        
+      - name: Install library
+        run: poetry install -E dev --no-interaction
+
+      - name: Run tests & Coverage file
+        run: |
+          source .venv/bin/activate
+          pytest app/
+          pytest --cache-clear --cov=app app/ --cov-report=xml > pytest-coverage.txt
+        env:
+          USERS_SERVICE_URL: dummy:5000
+          
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          directory: ./coverage/reports/
+          flags: unittests
+          env_vars: OS,PYTHON
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          path_to_write_report: ./coverage/codecov_report.txt
+          verbose: true
