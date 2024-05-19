@@ -10,7 +10,12 @@ from app.service.Social import SocialService
 from fastapi import HTTPException, status, Response
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema, TagSchema, UserSchema
+from app.schemas.SocialUser import (
+    SocialUserCreateSchema,
+    SocialUserSchema,
+    TagSchema,
+    UserSchema
+)
 
 
 class SocialController:

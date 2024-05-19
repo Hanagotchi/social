@@ -21,7 +21,7 @@ from app.exceptions.InternalServerErrorException \
 from fastapi import HTTPException
 
 from app.exceptions.NotFoundException import ItemNotFound
-from app.schemas.SocialUser import SocialUserCreateSchema
+from app.schemas.SocialUser import SocialUserCreateSchema, TagSchema
 from app.exceptions.BadRequestException import BadRequestException
 
 
@@ -852,3 +852,85 @@ async def test_given_user_with_posts_and_users_followed_when_get_my_feed_with_ti
     assert len(res_get_my_feed) == 2
     assert res_get_my_feed[0].content == "Hello world 2"
     assert res_get_my_feed[1].content == "Hello world 1"
+
+
+@pytest.mark.asyncio
+async def test_given_social_user_when_subscribe_to_tag_then_subscribe_to_tag():
+    # Given
+    input_user = SocialUserCreateSchema(id=1)
+    res_create_user = await social_service.create_social_user(input_user)
+    tag_schema = TagSchema(tag="tag1")
+
+    # When
+    res_subscribe_tag = await social_service.subscribe_to_tag(
+        res_create_user.id,
+        tag_schema
+    )
+
+    # Then
+    assert res_subscribe_tag == 1
+    res_get_user = await social_service.get_social_user(res_create_user.id)
+    assert res_get_user.tags == ["tag1"]
+
+
+@pytest.mark.asyncio
+async def test_given_social_user_when_subscribe_to_tag_already_subscribed_then_return_none():
+    # Given
+    input_user = SocialUserCreateSchema(id=1, tags=["tag1"])
+    res_create_user = await social_service.create_social_user(input_user)
+    tag_schema = TagSchema(tag="tag1")
+    await social_service.subscribe_to_tag(res_create_user.id, tag_schema)
+
+    # When
+    res_subscribe = await social_service.subscribe_to_tag(
+        res_create_user.id,
+        tag_schema
+    )
+
+    # Then
+    assert res_subscribe is None
+    res_get_user = await social_service.get_social_user(res_create_user.id)
+    assert res_get_user.tags == ["tag1"]
+
+
+@pytest.mark.asyncio
+async def test_given_social_with_tag_when_unsubscribe_to_tag_then_unsubscribe_to_tag():
+    # Given
+    input_user = SocialUserCreateSchema(id=1, tags=["tag1"])
+    res_create_user = await social_service.create_social_user(input_user)
+    tag_schema = TagSchema(tag="tag1")
+    await social_service.subscribe_to_tag(res_create_user.id, tag_schema)
+    tag_schema = TagSchema(tag="tag2")
+    await social_service.subscribe_to_tag(res_create_user.id, tag_schema)
+
+    # When
+    res_subscribe = await social_service.unsubscribe_to_tag(
+        res_create_user.id,
+        tag_schema
+    )
+
+    # Then
+    assert res_subscribe == 1
+    res_get_user = await social_service.get_social_user(res_create_user.id)
+    assert res_get_user.tags == ["tag1"]
+
+
+@pytest.mark.asyncio
+async def test_given_social_user_without_tag_when_unsubscribe_to_tag_then_return_none():
+    # Given
+    input_user = SocialUserCreateSchema(id=1)
+    res_create_user = await social_service.create_social_user(input_user)
+    tag_schema = TagSchema(tag="tag1")
+    await social_service.subscribe_to_tag(res_create_user.id, tag_schema)
+    tag_schema = TagSchema(tag="tag2")
+
+    # When
+    res_unsubscribe = await social_service.unsubscribe_to_tag(
+        res_create_user.id,
+        tag_schema
+    )
+
+    # Then
+    assert res_unsubscribe is None
+    res_get_user = await social_service.get_social_user(res_create_user.id)
+    assert res_get_user.tags == ["tag1"]

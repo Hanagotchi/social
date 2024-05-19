@@ -33,7 +33,10 @@ class SocialService:
         self.social_repository = social_repository
 
     async def create_post(self, input_post: PostCreateSchema) -> PostSchema:
-        get_user: GetUserSchema = await UserService.get_user(input_post.author_user_id)
+        get_user: GetUserSchema = await UserService.get_user(
+            input_post.author_user_id
+        )
+
         user: ReducedUser = ReducedUser.from_pydantic(get_user)
         post = Post.from_pydantic(input_post)
         id_post = self.social_repository.add_post(post)
