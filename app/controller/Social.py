@@ -10,7 +10,7 @@ from app.service.Social import SocialService
 from fastapi import HTTPException, status, Response
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema, UserSchema
+from app.schemas.SocialUser import SocialUserCreateSchema, SocialUserSchema, TagSchema, UserSchema
 
 
 class SocialController:
@@ -111,3 +111,29 @@ class SocialController:
 
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content="User unfollowed successfully")
+
+    async def handle_subscribe_to_tag(
+        self,
+        user_id: str,
+        tag: TagSchema,
+    ) -> JSONResponse:
+
+        result = await self.social_service.subscribe_to_tag(user_id, tag)
+        if result is None:
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+        return JSONResponse(status_code=status.HTTP_200_OK,
+                            content="Tag subscribed successfully")
+
+    async def handle_unsubscribe_to_tag(
+        self,
+        user_id: str,
+        tag: TagSchema,
+    ) -> JSONResponse:
+
+        result = await self.social_service.unsubscribe_to_tag(user_id, tag)
+        if result is None:
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+        return JSONResponse(status_code=status.HTTP_200_OK,
+                            content="Tag unsubscribed successfully")

@@ -5,13 +5,15 @@ from datetime import datetime
 
 PhotoUrl = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
 
-Tag = Annotated[str, Field(..., min_length=2, max_length=128)]
+TagType = Annotated[str, Field(..., min_length=2,
+                               max_length=128,
+                               pattern=r"^[a-zA-Z0-9_]*$")]
 
 
 class PostCreateSchema(BaseModel):
     author_user_id: int = Field(..., example=1)
     content: str = Field(..., max_length=512)
-    tags: Optional[list[Tag]] = None
+    tags: Optional[list[TagType]] = None
     photo_links: Optional[list[PhotoUrl]] = None
 
     class Config:
@@ -39,7 +41,7 @@ class PostBaseModel(BaseModel):
     likes_count: int = Field(default=0)
     created_at: datetime
     updated_at: datetime
-    tags: Optional[list[Tag]] = None
+    tags: Optional[list[TagType]] = None
 
 
 class PostSchema(PostBaseModel):
@@ -107,7 +109,7 @@ class PostInFeedSchema(PostBaseModel):
 
 class PostPartialUpdateSchema(BaseModel):
     content: Optional[str] = Field(None, max_length=512)
-    tags: Optional[list[Tag]] = None
+    tags: Optional[list[TagType]] = None
     photo_links: Optional[list[PhotoUrl]] = None
 
     class Config:

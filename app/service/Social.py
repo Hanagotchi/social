@@ -14,6 +14,7 @@ from app.schemas.Post import (
 from app.exceptions.NotFoundException import ItemNotFound
 from app.schemas.SocialUser import (
     SocialUserCreateSchema,
+    TagSchema,
     UserPartialUpdateSchema,
     SocialUserSchema,
     UserSchema,
@@ -105,7 +106,9 @@ class SocialService:
     ) -> List[PostInFeedSchema]:
         following = self.social_repository.get_following_of(user_id)
         following.append(user_id)  # Add the user itself to the feed!
-        filters = PostFilters(pagination=pagination, users=following, tags=None)
+        filters = PostFilters(pagination=pagination,
+                              users=following,
+                              tags=None)
         print(f"[FILTERS]: {filters}")
         return await self._get_all(filters)
 
@@ -179,6 +182,36 @@ class SocialService:
         updates: UserPartialUpdateSchema = {"followers":
                                             [user_id for user_id in followers]}
         await self._update_social_user(user_to_unfollow_id, updates)
+
+    async def subscribe_to_tag(self,
+                               user_id,
+                               tag_schema: TagSchema) -> Optional[int]:
+        social_user = self.social_repository.get_social_user(user_id)
+        tags = social_user["tags"]
+        if tag_schema.tag in tags:
+            return None
+        tags.append(tag_schema.tag.lower())
+        return self.social_repository.update_user(
+            user_id,
+            UserPartialUpdateSchema(tags=tags).model_dump_json(
+                exclude_none=True
+            )
+        )
+
+    async def unsubscribe_to_tag(self,
+                                 user_id,
+                                 tag_schema: TagSchema) -> Optional[int]:
+        social_user = self.social_repository.get_social_user(user_id)
+        tags = social_user["tags"]
+        if tag_schema.tag not in tags:
+            return None
+        tags.remove(tag_schema.tag.lower())
+        return self.social_repository.update_user(
+            user_id,
+            UserPartialUpdateSchema(tags=tags).model_dump_json(
+                exclude_none=True
+            )
+        )
 
 
 def map_author_user_id(user, crated_post):

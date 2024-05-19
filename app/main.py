@@ -10,10 +10,14 @@ from app.schemas.Post import (
     PostFilters,
     PostPagination,
     PostPartialUpdateSchema,
-    Tag,
+    TagType,
 )
 from app.security.JWTBearer import get_current_user_id
-from app.schemas.SocialUser import SocialUserCreateSchema, FollowUserSchema
+from app.schemas.SocialUser import (
+    SocialUserCreateSchema,
+    FollowUserSchema,
+    TagSchema
+)
 
 app = FastAPI(
     title="Social API",
@@ -108,7 +112,7 @@ async def get_all_posts(
     time_offset: Annotated[datetime | None, Query(default_factory=datetime.today)],
     page: Annotated[int | None, Query(ge=1)] = 1,
     per_page: Annotated[int | None, Query(ge=1, le=100)] = 30,
-    tag: Annotated[Tag | None, Query(default_factory=None)] = None,
+    tag: Annotated[TagType | None, Query(default_factory=None)] = None,
     author: Annotated[int | None, Query(ge=1)] = None,
 ):
     return await social_controller.handle_get_all(
@@ -145,4 +149,32 @@ async def unfollow_social_user(
     return await social_controller.handle_unfollow_social_user(
         user_id,
         user_to_unfollow_id.user_id
+    )
+
+
+@app.post(
+    "/social/users/tags/subscribe",
+    tags=["Social User"],
+)
+async def subscribe_to_tag(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    tag: TagSchema = Body(...)
+):
+    return await social_controller.handle_subscribe_to_tag(
+        user_id,
+        tag
+    )
+
+
+@app.post(
+    "/social/users/tags/unsubscribe",
+    tags=["Social User"],
+)
+async def unsubscribe_to_tag(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    tag: TagSchema = Body(...)
+):
+    return await social_controller.handle_unsubscribe_to_tag(
+        user_id,
+        tag
     )
