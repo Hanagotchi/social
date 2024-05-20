@@ -14,6 +14,7 @@ class Post(Base):
     author_user_id: int = Field(...)
     content: str = Field(..., max_length=512)
     likes_count: int = Field(default=0)
+    users_who_give_like: list[str] = Field(default=[])
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
     tags: list[str] = []
