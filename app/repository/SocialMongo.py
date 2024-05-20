@@ -174,7 +174,7 @@ class SocialMongoDB(SocialRepository):
         )
 
         return result.modified_count
-    
+
     @withMongoExceptionsHandle()
     def unlike_post(self, user_id: int, post_id: str) -> Optional[int]:
         result = self.posts_collection.update_one(

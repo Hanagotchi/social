@@ -217,19 +217,14 @@ class SocialService:
         )
 
     async def like_post(self,
-                        user_id,
-                        post_id: int) -> Optional[int]:
-        social_user = self.social_repository.get_social_user(user_id)
-        tags = social_user["tags"]
-        if tag_schema.tag in tags:
-            return None
-        tags.append(tag_schema.tag.lower())
-        return self.social_repository.update_user(
-            user_id,
-            UserPartialUpdateSchema(tags=tags).model_dump_json(
-                exclude_none=True
-            )
-        )
+                        user_id: int,
+                        post_id: str) -> Optional[int]:
+        self.social_repository.like_post(user_id, post_id)
+
+    async def unlike_post(self,
+                          user_id: int,
+                          post_id: str) -> Optional[int]:
+        self.social_repository.unlike_post(user_id, post_id)
 
 
 def map_author_user_id(user, crated_post):

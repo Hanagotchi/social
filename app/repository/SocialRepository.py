@@ -55,5 +55,9 @@ class SocialRepository(ABC):
         pass
 
     @abstractmethod
-    def like_post(self, user_id: int, post_id: str):
+    def like_post(self, user_id: int, post_id: str) -> Optional[int]:
+        pass
+
+    @abstractmethod
+    def unlike_post(self, user_id: int, post_id: str) -> Optional[int]:
         pass

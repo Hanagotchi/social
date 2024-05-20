@@ -142,3 +142,39 @@ class SocialController:
 
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content="Tag unsubscribed successfully")
+
+    async def handle_like_post(
+        self,
+        user_id: int,
+        post_id: str,
+    ) -> JSONResponse:
+        result = await self.social_service.like_post(user_id, post_id)
+
+        if result is None or result == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Could not found a post with id {post_id}"
+            )
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content="Post liked successfully"
+        )
+
+    async def handle_unlike_post(
+        self,
+        user_id: int,
+        post_id: str,
+    ) -> JSONResponse:
+        result = await self.social_service.unlike_post(user_id, post_id)
+
+        if result is None or result == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Could not found a post with id {post_id}"
+            )
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content="Post unliked successfully"
+        )

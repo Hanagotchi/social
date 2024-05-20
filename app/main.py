@@ -179,9 +179,18 @@ async def unsubscribe_to_tag(
         tag
     )
 
-""" @app.post("/social/posts", tags=["Posts"])
+
+@app.post("/social/posts/{post_id}/like", tags=["Posts"])
 async def like_post(
+    post_id: str,
     user_id: Annotated[int, Depends(get_current_user_id)],
-    tag: TagSchema = Body(...)
 ):
-    return await social_controller.handle_create_post(item) """
+    return await social_controller.handle_like_post(user_id, post_id)
+
+
+@app.post("/social/posts/{post_id}/unlike", tags=["Posts"])
+async def unlike_post(
+    post_id: str,
+    user_id: Annotated[int, Depends(get_current_user_id)],
+):
+    return await social_controller.handle_unlike_post(user_id, post_id)
