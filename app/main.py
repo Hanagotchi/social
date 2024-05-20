@@ -178,3 +178,10 @@ async def unsubscribe_to_tag(
         user_id,
         tag
     )
+
+""" @app.post("/social/posts", tags=["Posts"])
+async def like_post(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    tag: TagSchema = Body(...)
+):
+    return await social_controller.handle_create_post(item) """
