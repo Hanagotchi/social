@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from app.repository.SocialMongo import SocialMongoDB
 from httpx import Response
 from app.schemas.Post import (
+    PostCommentSchema,
     PostCreateSchema,
     PostPagination,
     PostPartialUpdateSchema,
@@ -852,3 +853,42 @@ async def test_given_user_with_posts_and_users_followed_when_get_my_feed_with_ti
     assert len(res_get_my_feed) == 2
     assert res_get_my_feed[0].content == "Hello world 2"
     assert res_get_my_feed[1].content == "Hello world 1"
+
+
+@pytest.mark.asyncio
+async def test_given_post_when_commented_then_increase_comment_count():
+    input_post = PostCreateSchema(
+        author_user_id=1,
+        content="Hello world",
+        photo_links=["https://example.com/photo.jpg"],
+        tags=["tag1", "tag2"],
+    )
+    res_create_post: PostSchema = await social_service.create_post(input_post)
+    post_id = res_create_post.id
+
+    # When
+    await social_service.comment_post(post_id, 1, "body")
+
+    # Then
+    res_get_post: PostSchema = await social_service.get_post(post_id)
+    assert res_get_post.comments_count == 1
+
+
+@pytest.mark.asyncio
+async def test_given_post_when_deleted_comment_then_decrease_comment_count():
+    input_post = PostCreateSchema(
+        author_user_id=1,
+        content="Hello world",
+        photo_links=["https://example.com/photo.jpg"],
+        tags=["tag1", "tag2"],
+    )
+    res_create_post: PostSchema = await social_service.create_post(input_post)
+    post_id = res_create_post.id
+    res_comment: PostCommentSchema = await social_service.comment_post(post_id, 1, "body")
+
+    # When
+    await social_service.delete_post_comment(post_id, res_comment.id)
+
+    # Then
+    res_get_post: PostSchema = await social_service.get_post(post_id)
+    assert res_get_post.comments_count == 0

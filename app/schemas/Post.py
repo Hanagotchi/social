@@ -163,6 +163,7 @@ class GetPostSchema(BaseModel):
     id: str = Field(...)
     author: ReducedUser = Field(...)
     content: str = Field(..., max_length=512)
+    photo_links: Optional[list[PhotoUrl]] = None
     likes_count: int = Field(default=0)
     created_at: datetime
     updated_at: datetime
