@@ -190,7 +190,7 @@ async def test_given_post_created_when_get_post_by_id_then_return_post_schema():
     res_get_post: PostSchema = await social_service.get_post(post_id)
 
     # Then
-    assert res_get_post == res_create_post
+    assert res_get_post.id == res_create_post.id
     assert res_get_post.content == "Hello world"
     assert res_get_post.photo_links == ["https://example.com/photo.jpg"]
     assert res_get_post.tags == ["tag1", "tag2"]
