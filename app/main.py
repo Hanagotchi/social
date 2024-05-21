@@ -69,10 +69,12 @@ async def get_one_post(
     tags=["Posts"],
 )
 async def update_fields_in_post(
+    user_id: Annotated[int, Depends(get_current_user_id)],
     id_post: str,
     update_post_set: PostPartialUpdateSchema = Body(...),
 ):
-    return await social_controller.handle_update_post(id_post, update_post_set)
+    return await social_controller.handle_update_post(
+        user_id, id_post, update_post_set)
 
 
 @app.delete(

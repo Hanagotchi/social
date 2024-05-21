@@ -56,13 +56,14 @@ class SocialService:
 
     async def update_post(
         self,
+        user_id: int,
         id_post: str,
         update_post_set: PostPartialUpdateSchema,
     ) -> Optional[PostSchema]:
         self.social_repository.update_post(
             id_post, update_post_set.model_dump_json(exclude_none=True)
         )
-        return await self.get_post(id_post)
+        return await self.get_post(id_post, user_id)
 
     def delete_post(self, id_post: str):
         row_count = self.social_repository.delete_post(id_post)

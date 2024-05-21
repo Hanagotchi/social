@@ -39,11 +39,12 @@ class SocialController:
 
     async def handle_update_post(
         self,
+        user_id: int,
         id_post: str,
         update_post_set: PostPartialUpdateSchema,
     ) -> JSONResponse:
         post: Optional[PostSchema] = await self.social_service.update_post(
-            id_post, update_post_set
+            user_id, id_post, update_post_set
         )
 
         if post:
