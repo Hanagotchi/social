@@ -76,7 +76,8 @@ class SocialService:
                     created_at=post['created_at'],
                     updated_at=post['updated_at'],
                     tags=post['tags'],
-                    comments=final_comments
+                    comments=final_comments,
+                    comments_count=post['comments_count']
                 )
 
     async def update_post(
@@ -222,7 +223,9 @@ class SocialService:
         }
         comments = post["comments"]
         comments.append(comment)
-        updates = PostPartialUpdateSchema(comments=comments)
+        comments_count = post["comments_count"] + 1
+        updates = PostPartialUpdateSchema(comments=comments,
+                                          comments_count=comments_count)
         await self.update_post(post_id, updates)
         return PostCommentSchema.model_validate(comment)
 
@@ -241,7 +244,9 @@ class SocialService:
             if comment["id"] == comment_id:
                 comments.remove(comment)
 
-        updates = PostPartialUpdateSchema(comments=comments)
+        comments_count = post["comments_count"] - 1
+        updates = PostPartialUpdateSchema(comments=comments,
+                                          comments_count=comments_count)
         await self.update_post(post_id, updates)
         return comment_id
 

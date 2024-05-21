@@ -44,7 +44,8 @@ class PostCreateSchema(BaseModel):
                     "https://example.com/photo2.jpg",
                 ],
                 "tags": ["petuñas", "mandarinas"],
-                "comments": []
+                "comments": [],
+                "comments_count": 0
             }
         }
 
@@ -58,6 +59,7 @@ class PostBaseModel(BaseModel):
     updated_at: datetime
     tags: Optional[list[Tag]] = None
     comments: list[PostCommentSchema] = []
+    comments_count: int = Field(default=0)
 
 
 class PostSchema(PostBaseModel):
@@ -87,7 +89,8 @@ class PostSchema(PostBaseModel):
                     "author": 11,
                     "content": "bien ahi!!",
                     "created_at": "2024-04-16T05:35:30.127Z"
-                }]
+                }],
+                "comments_count": 1
             }
         }
 
@@ -111,7 +114,8 @@ class PostInFeedSchema(PostBaseModel):
                 "updated_at": "2021-08-08T20:00:00",
                 "tags": ["petuñas", "mandarinas"],
                 "main_photo_link": "https://example.com/photo1.jpg",
-                "comments": []
+                "comments": [],
+                "comments_count": 0
             }
         }
 
@@ -128,6 +132,8 @@ class PostPartialUpdateSchema(BaseModel):
     content: Optional[str] = Field(None, max_length=512)
     tags: Optional[list[Tag]] = None
     photo_links: Optional[list[PhotoUrl]] = None
+    comments: Optional[list[PostCommentSchema]] = None
+    comments_count: Optional[int] = None
 
     class Config:
         json_schema_extra = {
@@ -162,6 +168,7 @@ class GetPostSchema(BaseModel):
     updated_at: datetime
     tags: Optional[list[Tag]] = None
     comments: list[GetPostCommentSchema] = []
+    comments_count: int = Field(default=0)
 
 
 class PostPagination(BaseModel):

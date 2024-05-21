@@ -17,6 +17,7 @@ db.posts.insertMany([
         "created_at": ISODate("2024-04-16T05:35:30.127Z")
       }
     ],
+    "comments_count": 1,
     "tags": [],
     "photo_links": [],
   },
@@ -28,6 +29,7 @@ db.posts.insertMany([
     "updated_at": ISODate("2024-04-19T02:15:30.217Z"),
     "tags": ["influencers"],
     "comments": [],
+    "comments_count": 0,
     "photo_links": []
   }
 ])

@@ -19,6 +19,7 @@ class Post(Base):
     tags: list[str] = []
     photo_links: list[str] = []
     comments: Optional[list[PostCommentSchema]]
+    comments_count: int = Field(default=0)
 
     class Config:
         allow_population_by_field_name = False
