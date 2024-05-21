@@ -39,7 +39,7 @@ class PostBaseModel(BaseModel):
     author: ReducedUser = Field(...)
     content: str = Field(..., max_length=512)
     likes_count: int = Field(default=0)
-    users_who_gave_like: list[str] = Field(default=[])
+    users_who_gave_like: list[int] = Field(default=[])
     created_at: datetime
     updated_at: datetime
     tags: Optional[list[TagType]] = None

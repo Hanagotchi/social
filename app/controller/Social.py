@@ -149,11 +149,10 @@ class SocialController:
         post_id: str,
     ) -> JSONResponse:
         result = await self.social_service.like_post(user_id, post_id)
-
         if result is None or result == 0:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Could not found a post with id {post_id}"
+            return JSONResponse(
+                status_code=status.HTTP_204_NO_CONTENT,
+                content=""
             )
 
         return JSONResponse(
@@ -169,9 +168,9 @@ class SocialController:
         result = await self.social_service.unlike_post(user_id, post_id)
 
         if result is None or result == 0:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Could not found a post with id {post_id}"
+            return JSONResponse(
+                status_code=status.HTTP_204_NO_CONTENT,
+                content=""
             )
 
         return JSONResponse(

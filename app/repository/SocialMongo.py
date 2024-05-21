@@ -169,9 +169,11 @@ class SocialMongoDB(SocialRepository):
     def like_post(self, user_id: int, post_id: str) -> Optional[int]:
         result = self.posts_collection.update_one(
             {"_id": ObjectId(post_id)}, {
-                "$push": {"users_who_gave_like": user_id},
-                "$inc": {"likes_count": 1}}
+                "$addToSet": {"users_who_gave_like": user_id}
+            }
         )
+
+        print(result.modified_count)
 
         return result.modified_count
 
@@ -179,12 +181,8 @@ class SocialMongoDB(SocialRepository):
     def unlike_post(self, user_id: int, post_id: str) -> Optional[int]:
         result = self.posts_collection.update_one(
             {"_id": ObjectId(post_id)}, {
-                "$pull": {
-                    "users_who_gave_like": {
-                        "$eq": user_id
-                    }
-                },
-                "$inc": {"likes_count": -1}}
+                "$pull": {"users_who_gave_like": {"$eq": user_id}}
+            }
         )
 
         return result.modified_count

@@ -135,7 +135,6 @@ class SocialService:
             users_fetched_hash[user.id] = user
 
         final_posts = []
-
         for post in fetched_posts:
             author_id = post["author_user_id"]
             get_user: GetUserSchema = users_fetched_hash.get(author_id)
@@ -219,12 +218,12 @@ class SocialService:
     async def like_post(self,
                         user_id: int,
                         post_id: str) -> Optional[int]:
-        self.social_repository.like_post(user_id, post_id)
+        return self.social_repository.like_post(user_id, post_id)
 
     async def unlike_post(self,
                           user_id: int,
                           post_id: str) -> Optional[int]:
-        self.social_repository.unlike_post(user_id, post_id)
+        return self.social_repository.unlike_post(user_id, post_id)
 
 
 def map_author_user_id(user, crated_post):
