@@ -79,7 +79,7 @@ class SocialController:
         )
 
     async def handle_get_all(self, filters: PostFilters) -> JSONResponse:
-        list = await self.social_service.get_all(filters)
+        list = await self.social_service._get_all(filters)
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(list)
         )

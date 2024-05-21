@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/Hanagotchi/social/graph/badge.svg?token=KSFWCISJQO)](https://codecov.io/gh/Hanagotchi/social) [![Tests](https://github.com/Hanagotchi/social/actions/workflows/tests.yml/badge.svg)](https://github.com/Hanagotchi/social/actions/workflows/tests.yml) [![Linters](https://github.com/Hanagotchi/social/actions/workflows/linters.yml/badge.svg)](https://github.com/Hanagotchi/social/actions/workflows/linters.yml)
+
 # Social Microservice
 
 This is a microservice that provides information about social network.
@@ -93,3 +95,24 @@ Available targets are:
 * **docker-compose-logs**: Allows viewing the current logs of the project. Use with `grep` to filter messages from a specific application within the compose.
 * **docker-image**: Builds the images to be used. This target is used by **docker-compose-up**, so it can be used to test new changes in the images before starting the project.
 
+## Testing
+
+### With Poetry
+
+After any change in pyproject.toml file (always execute this before installing):
+
+```$ poetry lock```
+
+Then, install the development dependencies:
+```$ poetry install -E dev```
+
+To run the tests:
+```$ poetry run pytest app```
+
+### With Docker
+
+```$ docker build -t test-social -f Dockerfile.test . && docker run test-social && docker rmi test-social -f```
+
+Or use the Makefile target:
+
+```$ make docker-test```
