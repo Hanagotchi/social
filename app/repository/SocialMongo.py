@@ -173,7 +173,12 @@ class SocialMongoDB(SocialRepository):
             }
         )
 
-        print(result.modified_count)
+        if result.modified_count == 1:
+            result = self.posts_collection.update_one(
+                {"_id": ObjectId(post_id)}, {
+                    "$inc": {"likes_count": 1}
+                }
+            )
 
         return result.modified_count
 
@@ -184,5 +189,12 @@ class SocialMongoDB(SocialRepository):
                 "$pull": {"users_who_gave_like": {"$eq": user_id}}
             }
         )
+
+        if result.modified_count == 1:
+            result = self.posts_collection.update_one(
+                {"_id": ObjectId(post_id)}, {
+                    "$inc": {"likes_count": -1}
+                }
+            )
 
         return result.modified_count
