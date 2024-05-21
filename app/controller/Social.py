@@ -29,8 +29,10 @@ class SocialController:
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(post)
         )
 
-    async def handle_get_post(self, id_post: str) -> JSONResponse:
-        post: PostSchema = await self.social_service.get_post(id_post)
+    async def handle_get_post(self, requestor_id: int, id_post: str) -> JSONResponse:
+        post: PostSchema = await self.social_service.get_post(
+            id_post, requestor_id
+        )
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(post)
         )
@@ -82,8 +84,9 @@ class SocialController:
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(user)
         )
 
-    async def handle_get_all(self, filters: PostFilters) -> JSONResponse:
-        list = await self.social_service._get_all(filters)
+    async def handle_get_all(
+            self, requestor_id: int, filters: PostFilters) -> JSONResponse:
+        list = await self.social_service._get_all(filters, requestor_id)
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(list)
         )

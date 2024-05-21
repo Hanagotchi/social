@@ -44,13 +44,14 @@ class SocialService:
         map_author_user_id(user, crated_post)
         return PostSchema.model_validate(crated_post)
 
-    async def get_post(self, id_post: int) -> PostSchema:
+    async def get_post(self, id_post: int, user_id: int) -> PostSchema:
         post: Post = self.social_repository.get_post(id_post)
         if post is None:
             raise ItemNotFound("Post", id_post)
         get_user: GetUserSchema = await UserService.get_user(post["author_user_id"])
         user: ReducedUser = ReducedUser.from_pydantic(get_user)
         map_author_user_id(user, post)
+        check_if_user_liked_the_post(user_id, post)
         return PostSchema.model_validate(post)
 
     async def update_post(
@@ -113,9 +114,9 @@ class SocialService:
                               users=following,
                               tags=None)
         print(f"[FILTERS]: {filters}")
-        return await self._get_all(filters)
+        return await self._get_all(filters, user_id)
 
-    async def _get_all(self, filters: PostFilters) -> List[PostSchema]:
+    async def _get_all(self, filters: PostFilters, user_id: int) -> List[PostSchema]:
         cursor = self.social_repository.get_posts_by(filters)
         fetched_posts = []
         users_ids_to_fetch = set()
@@ -140,6 +141,7 @@ class SocialService:
             get_user: GetUserSchema = users_fetched_hash.get(author_id)
             user: ReducedUser = ReducedUser.from_pydantic(get_user)
             map_author_user_id(user, post)
+            check_if_user_liked_the_post(user_id, post)
             valid_post = PostInFeedSchema.from_post(PostSchema.model_validate(post))
             final_posts.append(valid_post)
 
@@ -229,3 +231,9 @@ class SocialService:
 def map_author_user_id(user, crated_post):
     crated_post["author"] = user
     crated_post.pop("author_user_id")
+
+
+def check_if_user_liked_the_post(user_id: int, created_post: Post):
+    created_post["liked_by_me"] = any(
+        map(lambda id: id == user_id, created_post["users_who_gave_like"])
+    )

@@ -56,8 +56,12 @@ async def create_post(item: PostCreateSchema):
 
 
 @app.get("/social/posts/{id_post}", tags=["Posts"])
-async def get_one_post(req: Request, id_post: str):
-    return await social_controller.handle_get_post(id_post)
+async def get_one_post(
+    req: Request,
+    id_post: str,
+    user_id: Annotated[int, Depends(get_current_user_id)],
+):
+    return await social_controller.handle_get_post(user_id, id_post)
 
 
 @app.patch(
@@ -109,6 +113,7 @@ async def create_social_user(item: SocialUserCreateSchema):
 
 @app.get("/social/posts", tags=["Posts"])
 async def get_all_posts(
+    user_id: Annotated[int, Depends(get_current_user_id)],
     time_offset: Annotated[datetime | None, Query(default_factory=datetime.today)],
     page: Annotated[int | None, Query(ge=1)] = 1,
     per_page: Annotated[int | None, Query(ge=1, le=100)] = 30,
@@ -116,6 +121,7 @@ async def get_all_posts(
     author: Annotated[int | None, Query(ge=1)] = None,
 ):
     return await social_controller.handle_get_all(
+        user_id,
         PostFilters(
             pagination=PostPagination(
                 time_offset=time_offset, page=page, per_page=per_page
