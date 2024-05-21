@@ -6,6 +6,8 @@ from app.service.Social import SocialService
 from typing import Annotated
 from app.repository.SocialMongo import SocialMongoDB
 from app.schemas.Post import (
+    CreatePostCommentSchema,
+    DeletePostCommentSchema,
     PostCreateSchema,
     PostFilters,
     PostPagination,
@@ -145,4 +147,34 @@ async def unfollow_social_user(
     return await social_controller.handle_unfollow_social_user(
         user_id,
         user_to_unfollow_id.user_id
+    )
+
+
+@app.post(
+    "/social/posts/{post_id}/comments",
+    tags=["Post"],
+)
+async def comment_post(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    post_id: str,
+    comment: CreatePostCommentSchema = Body(...)
+):
+    return await social_controller.handle_comment_post(
+        post_id,
+        user_id,
+        comment.body
+    )
+
+
+@app.delete(
+    "/social/posts/{post_id}/comments",
+    tags=["Post"],
+)
+async def delete_post_comment(
+    post_id: str,
+    body: DeletePostCommentSchema = Body(...)
+):
+    return await social_controller.handle_delete_post_comment(
+        post_id,
+        body.comment_id
     )
