@@ -186,7 +186,7 @@ async def test_given_post_created_when_get_post_by_id_then_return_post_schema():
     post_id = res_create_post.id
 
     # When
-    res_get_post: PostSchema = await social_service.get_post(post_id)
+    res_get_post: PostSchema = await social_service.get_post(post_id, 0)
 
     # Then
     assert res_get_post == res_create_post
@@ -209,7 +209,7 @@ async def test_given_post_id_not_found_when_get_post_by_id_then_raise_not_found_
 
     # When
     with pytest.raises(ItemNotFound) as excinfo:
-        await social_service.get_post(post_id)
+        await social_service.get_post(post_id, 0)
 
     # Then
     assert str(excinfo.value) == "404: Post with id " + \
@@ -934,3 +934,8 @@ async def test_given_social_user_without_tag_when_unsubscribe_to_tag_then_return
     assert res_unsubscribe is None
     res_get_user = await social_service.get_social_user(res_create_user.id)
     assert res_get_user.tags == ["tag1"]
+
+
+""" @pytest.mark.asyncio
+async def test_given_post_when_user_like_it_then_post_is_updated():
+    # Given """
