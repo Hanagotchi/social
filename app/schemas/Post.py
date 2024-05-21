@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field, AfterValidator, HttpUrl, model_validator
-from typing import Annotated, Any, Optional
+from pydantic import BaseModel, Field, AfterValidator, HttpUrl
+from typing import Annotated, Optional
 from app.schemas.RealUser import ReducedUser
 from datetime import datetime
 
@@ -43,21 +43,6 @@ class PostBaseModel(BaseModel):
     created_at: datetime
     updated_at: datetime
     tags: Optional[list[TagType]] = None
-
-"""     @model_validator(mode='before')
-    @classmethod
-    def check_if_post_has_been_liked_by_requestor(cls, data: Any) -> Any:
-        if isinstance(data, dict):
-            requestor_id = data.pop("requestor_id", None)
-            if requestor_id:
-                data["liked_by_me"] = any(
-                    map(
-                        lambda id: id == requestor_id,
-                        data["users_who_gave_like"]
-                    )
-                )
-
-        return data """
 
 
 class PostSchema(PostBaseModel):
