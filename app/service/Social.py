@@ -73,6 +73,7 @@ class SocialService:
                     author=user,
                     content=post['content'],
                     likes_count=post['likes_count'],
+                    photo_links=post['photo_links'],
                     created_at=post['created_at'],
                     updated_at=post['updated_at'],
                     tags=post['tags'],
