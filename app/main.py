@@ -16,6 +16,8 @@ from app.schemas.Post import (
 )
 from app.security.JWTBearer import get_current_user_id
 from app.schemas.SocialUser import SocialUserCreateSchema, FollowUserSchema
+from app.query_params.QueryParams import SociaFollowersQueryParams
+
 
 app = FastAPI(
     title="Social API",
@@ -178,3 +180,11 @@ async def delete_post_comment(
         post_id,
         body.comment_id
     )
+
+
+@app.get("/social/user", tags=["Social User"])
+async def get_user_followers(
+    query_params: SociaFollowersQueryParams = Depends(SociaFollowersQueryParams)
+):
+    return await social_controller.handle_get_user_followers(
+        query_params.get_query_params())
