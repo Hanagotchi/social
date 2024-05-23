@@ -142,3 +142,15 @@ class SocialController:
 
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content="Comment deleted successfully")
+
+    async def handle_get_user_followers(self, query_params: dict) -> JSONResponse:
+        followers = await self.social_service.get_user_followers(query_params)
+        if followers:
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content=jsonable_encoder(followers)
+            )
+        return JSONResponse(
+            status_code=status.HTTP_204_NO_CONTENT,
+            content=jsonable_encoder(followers)
+        )

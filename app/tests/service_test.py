@@ -1,5 +1,6 @@
 from asyncio import sleep
 from datetime import datetime, timedelta
+from unittest.mock import AsyncMock, patch
 import pytest
 import logging
 import mongomock
@@ -23,6 +24,7 @@ from fastapi import HTTPException
 
 from app.exceptions.NotFoundException import ItemNotFound
 from app.schemas.SocialUser import SocialUserCreateSchema
+from app.schemas.SocialUser import UserSchema
 from app.exceptions.BadRequestException import BadRequestException
 
 
@@ -117,7 +119,7 @@ async def mock_get_user_service_with_three_valid_ids(*args, **kwargs):
 def test(monkeypatch):
     # Mocking UserService.get
     monkeypatch.setattr(
-        "app.service.Users.UserService.get",
+        "app.external.Users.UserService.get",
         mock_get_user_service_with_three_valid_ids
     )
     # Mocking MongoClient!
@@ -884,7 +886,8 @@ async def test_given_post_when_deleted_comment_then_decrease_comment_count():
     )
     res_create_post: PostSchema = await social_service.create_post(input_post)
     post_id = res_create_post.id
-    res_comment: PostCommentSchema = await social_service.comment_post(post_id, 1, "body")
+    res_comment: PostCommentSchema = await social_service.comment_post(post_id, 1,
+                                                                       "body")
 
     # When
     await social_service.delete_post_comment(post_id, res_comment.id)
@@ -892,3 +895,104 @@ async def test_given_post_when_deleted_comment_then_decrease_comment_count():
     # Then
     res_get_post: PostSchema = await social_service.get_post(post_id)
     assert res_get_post.comments_count == 0
+
+
+@pytest.mark.asyncio
+async def test_get_user_followers_with_no_query(monkeypatch):
+    # Given
+    user_id = 1
+    followers_ids = [2, 3]
+    follower_1 = UserSchema(_id=2, name="John Doe", photo="photo1.jpg", nickname="john")
+    follower_2 = UserSchema(_id=3, name="Jane Smith", photo="photo2.jpg",
+                            nickname="jane")
+
+    monkeypatch.setattr(social_service.social_repository, "get_followers_of",
+                        AsyncMock(return_value=followers_ids))
+
+    with patch("app.external.Users.UserService.get_users", return_value=[follower_1,
+                                                                        follower_2]):
+        # When
+        result = await social_service.get_user_followers({"user_id": user_id})
+
+        # Then
+        assert len(result) == 2
+        assert result[0].id == 2
+        assert result[0].name == "John Doe"
+        assert result[1].id == 3
+        assert result[1].name == "Jane Smith"
+
+
+@pytest.mark.asyncio
+async def test_get_user_followers_returning_empty(monkeypatch):
+    # Given
+    user_id = 1
+
+    monkeypatch.setattr(social_service.social_repository, "get_followers_of",
+                        AsyncMock(return_value=[]))
+
+    with patch("app.external.Users.UserService.get_users", return_value=[]):
+        # When
+        result = await social_service.get_user_followers({"user_id": user_id,
+                                                          "query": "ja"})
+
+        # Then
+        assert len(result) == 0
+
+
+@pytest.mark.asyncio
+async def test_get_user_followers_with_query(monkeypatch):
+    # Given
+    user_id = 1
+    followers_ids = [2, 3]
+    follower_1 = UserSchema(_id=2, name="John Doe", photo="photo1.jpg",
+                            nickname="john")
+    follower_2 = UserSchema(_id=3, name="Jane Smith", photo="photo2.jpg",
+                            nickname="jane")
+
+    monkeypatch.setattr(social_service.social_repository, "get_followers_of",
+                        AsyncMock(return_value=followers_ids))
+
+    with patch("app.external.Users.UserService.get_users", return_value=[follower_1,
+                                                                         follower_2]):
+        # When
+        result = await social_service.get_user_followers({"user_id": user_id,
+                                                          "query": "ja"})
+
+        # Then
+        assert len(result) == 1
+        assert result[0].id == 3
+        assert result[0].name == "Jane Smith"
+
+
+@pytest.mark.asyncio
+async def test_get_user_followers_with_query_no_match(monkeypatch):
+    # Given
+    user_id = 1
+    followers_ids = [2, 3]
+    follower_1 = UserSchema(_id=2, name="John Doe", photo="photo1.jpg", nickname="john")
+    follower_2 = UserSchema(_id=3, name="Jane Smith", photo="photo2.jpg",
+                            nickname="jane")
+
+    monkeypatch.setattr(social_service.social_repository, "get_followers_of",
+                        AsyncMock(return_value=followers_ids))
+
+    with patch("app.external.Users.UserService.get_users", return_value=[follower_1,
+                                                                         follower_2]):
+        # When
+        result = await social_service.get_user_followers({"user_id": user_id,
+                                                          "query": "xx"})
+
+        # Then
+        assert len(result) == 0
+
+
+@pytest.mark.asyncio
+async def test_get_user_followers_no_user_id():
+    # Given
+    query_params = {}
+
+    # When / Then
+    with pytest.raises(BadRequestException) as excinfo:
+        await social_service.get_user_followers(query_params)
+
+    assert str(excinfo.value) == "400: Bad request: user id is required"

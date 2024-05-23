@@ -1,10 +1,10 @@
 from datetime import datetime
 import logging
 import uuid
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from app.models.Post import Post
 from app.repository.SocialRepository import SocialRepository
-from app.service.Users import UserService
+from app.external.Users import UserService
 from app.schemas.Post import (
     GetPostCommentSchema,
     GetPostSchema,
@@ -251,6 +251,38 @@ class SocialService:
                                           comments_count=comments_count)
         await self.update_post(post_id, updates)
         return comment_id
+
+    async def get_user_followers(self,
+                                 query_params: Dict[str, Any]) -> List[UserSchema]:
+        user_id = query_params.get('user_id')
+        query = query_params.get('query', '')
+
+        if not user_id:
+            raise BadRequestException("User ID is required")
+
+        followers = self.social_repository.get_followers_of(user_id)
+        if not followers:
+            return []
+
+        if query:
+            followers_details = await UserService.get_users(followers)
+            filtered_followers = [
+                follower for follower in followers_details
+                if follower.nickname.startswith(query)
+            ]
+        else:
+            filtered_followers = await UserService.get_users(followers)
+
+        followers_data = [
+            UserSchema(
+                _id=follower.id,
+                name=follower.name,
+                photo=follower.photo,
+                nickname=follower.nickname
+            ) for follower in filtered_followers
+        ]
+
+        return followers_data
 
 
 def find_comment_by_id(post: Post, comment_id: str) -> Optional[PostCommentSchema]:
