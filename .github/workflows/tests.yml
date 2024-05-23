@@ -49,7 +49,7 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest app/
-          pytest --cache-clear --cov=app app/ --cov-report=xml > pytest-coverage.txt
+          pytest --cache-clear --cov=app/service app/ --cov-report=xml > pytest-coverage.txt
         env:
           USERS_SERVICE_URL: dummy:5000
           

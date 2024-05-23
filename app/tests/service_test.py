@@ -119,7 +119,7 @@ async def mock_get_user_service_with_three_valid_ids(*args, **kwargs):
 def test(monkeypatch):
     # Mocking UserService.get
     monkeypatch.setattr(
-        "app.service.Users.UserService.get",
+        "app.external.Users.UserService.get",
         mock_get_user_service_with_three_valid_ids
     )
     # Mocking MongoClient!
@@ -909,7 +909,7 @@ async def test_get_user_followers_no_query(monkeypatch):
     monkeypatch.setattr(social_service.social_repository, "get_followers_of",
                         AsyncMock(return_value=followers_ids))
 
-    with patch("app.service.Users.UserService.get_users", return_value=[follower_1,
+    with patch("app.external.Users.UserService.get_users", return_value=[follower_1,
                                                                         follower_2]):
         # When
         result = await social_service.get_user_followers({"user_id": user_id})
@@ -935,7 +935,7 @@ async def test_get_user_followers_with_query(monkeypatch):
     monkeypatch.setattr(social_service.social_repository, "get_followers_of",
                         AsyncMock(return_value=followers_ids))
 
-    with patch("app.service.Users.UserService.get_users", return_value=[follower_1,
+    with patch("app.external.Users.UserService.get_users", return_value=[follower_1,
                                                                         follower_2]):
         # When
         result = await social_service.get_user_followers({"user_id": user_id,

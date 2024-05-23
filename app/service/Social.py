@@ -4,7 +4,7 @@ import uuid
 from typing import List, Optional, Dict, Any
 from app.models.Post import Post
 from app.repository.SocialRepository import SocialRepository
-from app.service.Users import UserService
+from app.external.Users import UserService
 from app.schemas.Post import (
     GetPostCommentSchema,
     GetPostSchema,

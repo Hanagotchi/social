@@ -16,7 +16,7 @@ RUN poetry lock
 
 RUN poetry install -E dev
 
-COPY tests/ tests/
+COPY app/tests/ tests/
 
 COPY . .
 
