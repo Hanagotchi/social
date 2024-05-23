@@ -1,0 +1,14 @@
+version: 2.0
+coverage:
+  status:
+    project:
+      default:
+        target: 85%
+    patch:
+      default:
+        target: 80%
+
+# Disable the default strict coverage comparison with the base branch
+checks:
+  status: 
+    changes: false
