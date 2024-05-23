@@ -898,7 +898,7 @@ async def test_given_post_when_deleted_comment_then_decrease_comment_count():
 
 
 @pytest.mark.asyncio
-async def test_get_user_followers_no_query(monkeypatch):
+async def test_get_user_followers_with_no_query(monkeypatch):
     # Given
     user_id = 1
     followers_ids = [2, 3]
@@ -920,6 +920,23 @@ async def test_get_user_followers_no_query(monkeypatch):
         assert result[0].name == "John Doe"
         assert result[1].id == 3
         assert result[1].name == "Jane Smith"
+
+
+@pytest.mark.asyncio
+async def test_get_user_followers_returning_empty(monkeypatch):
+    # Given
+    user_id = 1
+
+    monkeypatch.setattr(social_service.social_repository, "get_followers_of",
+                        AsyncMock(return_value=[]))
+
+    with patch("app.external.Users.UserService.get_users", return_value=[]):
+        # When
+        result = await social_service.get_user_followers({"user_id": user_id,
+                                                          "query": "ja"})
+
+        # Then
+        assert len(result) == 0
 
 
 @pytest.mark.asyncio
