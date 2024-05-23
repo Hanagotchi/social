@@ -46,7 +46,9 @@ jobs:
         run: poetry install -E dev --no-interaction
 
       - name: Run tests
-        run: pytest --cov=app/service
-
+        run: |
+          source .venv/bin/activate
+          pytest --cov=app/service
+        
       - name: Upload to codecov
         run: bash <(curl -s https://codecov.io/bash)
