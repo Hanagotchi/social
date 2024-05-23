@@ -49,6 +49,8 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest --cov=app/service
+        env:
+          USERS_SERVICE_URL: dummy:5000
         
       - name: Upload to codecov
         run: bash <(curl -s https://codecov.io/bash)
