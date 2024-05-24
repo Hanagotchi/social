@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+from app.schemas.Post import TagType
 
 
 class SocialUserCreateSchema(BaseModel):
@@ -22,6 +23,10 @@ class UserSchema(SocialUserSchema):
     nickname: Optional[str]
 
 
+class TagSchema(BaseModel):
+    tag: TagType
+
+
 class FollowUserSchema(BaseModel):
     user_id: int
 
@@ -29,11 +34,4 @@ class FollowUserSchema(BaseModel):
 class UserPartialUpdateSchema(BaseModel):
     followers: Optional[list[int]] = None
     following: Optional[list[int]] = None
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "followers": [1, 2],
-                "following": [2, 3, 6],
-            }
-        }
+    tags: Optional[list[str]] = None

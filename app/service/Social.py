@@ -19,6 +19,7 @@ from app.schemas.Post import (
 from app.exceptions.NotFoundException import ItemNotFound
 from app.schemas.SocialUser import (
     SocialUserCreateSchema,
+    TagSchema,
     UserPartialUpdateSchema,
     SocialUserSchema,
     UserSchema,
@@ -37,7 +38,10 @@ class SocialService:
         self.social_repository = social_repository
 
     async def create_post(self, input_post: PostCreateSchema) -> PostSchema:
-        get_user: GetUserSchema = await UserService.get_user(input_post.author_user_id)
+        get_user: GetUserSchema = await UserService.get_user(
+            input_post.author_user_id
+        )
+
         user: ReducedUser = ReducedUser.from_pydantic(get_user)
         post = Post.from_pydantic(input_post)
         id_post = self.social_repository.add_post(post)
@@ -137,7 +141,9 @@ class SocialService:
     ) -> List[PostInFeedSchema]:
         following = self.social_repository.get_following_of(user_id)
         following.append(user_id)  # Add the user itself to the feed!
-        filters = PostFilters(pagination=pagination, users=following, tags=None)
+        filters = PostFilters(pagination=pagination,
+                              users=following,
+                              tags=None)
         print(f"[FILTERS]: {filters}")
         return await self._get_all(filters)
 
@@ -211,6 +217,36 @@ class SocialService:
         updates: UserPartialUpdateSchema = {"followers":
                                             [user_id for user_id in followers]}
         await self._update_social_user(user_to_unfollow_id, updates)
+
+    async def subscribe_to_tag(self,
+                               user_id,
+                               tag_schema: TagSchema) -> Optional[int]:
+        social_user = self.social_repository.get_social_user(user_id)
+        tags = social_user["tags"]
+        if tag_schema.tag in tags:
+            return None
+        tags.append(tag_schema.tag.lower())
+        return self.social_repository.update_user(
+            user_id,
+            UserPartialUpdateSchema(tags=tags).model_dump_json(
+                exclude_none=True
+            )
+        )
+
+    async def unsubscribe_to_tag(self,
+                                 user_id,
+                                 tag_schema: TagSchema) -> Optional[int]:
+        social_user = self.social_repository.get_social_user(user_id)
+        tags = social_user["tags"]
+        if tag_schema.tag not in tags:
+            return None
+        tags.remove(tag_schema.tag.lower())
+        return self.social_repository.update_user(
+            user_id,
+            UserPartialUpdateSchema(tags=tags).model_dump_json(
+                exclude_none=True
+            )
+        )
 
     async def comment_post(self, post_id, author_id, comment_body) -> PostCommentSchema:
         post: Post = self.social_repository.get_post(post_id)
