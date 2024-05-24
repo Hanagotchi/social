@@ -181,8 +181,11 @@ async def unsubscribe_to_tag(
         user_id,
         tag
     )
+
+
+@app.post(
     "/social/posts/{post_id}/comments",
-    tags=["Post"],
+    tags=["Posts"],
 )
 async def comment_post(
     user_id: Annotated[int, Depends(get_current_user_id)],
@@ -198,7 +201,7 @@ async def comment_post(
 
 @app.delete(
     "/social/posts/{post_id}/comments",
-    tags=["Post"],
+    tags=["Posts"],
 )
 async def delete_post_comment(
     post_id: str,

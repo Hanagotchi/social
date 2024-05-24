@@ -143,6 +143,7 @@ class SocialController:
 
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content="Tag unsubscribed successfully")
+
     async def handle_comment_post(
         self,
         post_id: str,
