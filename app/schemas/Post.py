@@ -169,7 +169,7 @@ class GetPostSchema(BaseModel):
     likes_count: int = Field(default=0)
     created_at: datetime
     updated_at: datetime
-    tags: Optional[list[Tag]] = None
+    tags: Optional[list[TagType]] = None
     comments: list[GetPostCommentSchema] = []
     comments_count: int = Field(default=0)
 
