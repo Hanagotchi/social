@@ -53,3 +53,11 @@ class SocialRepository(ABC):
     @abstractmethod
     def get_social_user(self, id_received: int) -> Base:
         pass
+
+    @abstractmethod
+    def like_post(self, user_id: int, post_id: str) -> Optional[int]:
+        pass
+
+    @abstractmethod
+    def unlike_post(self, user_id: int, post_id: str) -> Optional[int]:
+        pass

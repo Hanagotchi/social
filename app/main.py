@@ -22,6 +22,7 @@ from app.schemas.SocialUser import (
 )
 from app.query_params.QueryParams import SociaFollowersQueryParams
 
+
 app = FastAPI(
     title="Social API",
     version="0.1.0",
@@ -59,8 +60,12 @@ async def create_post(item: PostCreateSchema):
 
 
 @app.get("/social/posts/{id_post}", tags=["Posts"])
-async def get_one_post(req: Request, id_post: str):
-    return await social_controller.handle_get_post(id_post)
+async def get_one_post(
+    req: Request,
+    id_post: str,
+    user_id: Annotated[int, Depends(get_current_user_id)],
+):
+    return await social_controller.handle_get_post(user_id, id_post)
 
 
 @app.patch(
@@ -68,10 +73,12 @@ async def get_one_post(req: Request, id_post: str):
     tags=["Posts"],
 )
 async def update_fields_in_post(
+    user_id: Annotated[int, Depends(get_current_user_id)],
     id_post: str,
     update_post_set: PostPartialUpdateSchema = Body(...),
 ):
-    return await social_controller.handle_update_post(id_post, update_post_set)
+    return await social_controller.handle_update_post(
+        user_id, id_post, update_post_set)
 
 
 @app.delete(
@@ -112,6 +119,7 @@ async def create_social_user(item: SocialUserCreateSchema):
 
 @app.get("/social/posts", tags=["Posts"])
 async def get_all_posts(
+    user_id: Annotated[int, Depends(get_current_user_id)],
     time_offset: Annotated[datetime | None, Query(default_factory=datetime.today)],
     page: Annotated[int | None, Query(ge=1)] = 1,
     per_page: Annotated[int | None, Query(ge=1, le=100)] = 30,
@@ -119,6 +127,7 @@ async def get_all_posts(
     author: Annotated[int | None, Query(ge=1)] = None,
 ):
     return await social_controller.handle_get_all(
+        user_id,
         PostFilters(
             pagination=PostPagination(
                 time_offset=time_offset, page=page, per_page=per_page
@@ -183,6 +192,22 @@ async def unsubscribe_to_tag(
     )
 
 
+@app.post("/social/posts/{post_id}/like", tags=["Posts"])
+async def like_post(
+    post_id: str,
+    user_id: Annotated[int, Depends(get_current_user_id)],
+):
+    return await social_controller.handle_like_post(user_id, post_id)
+
+
+@app.post("/social/posts/{post_id}/unlike", tags=["Posts"])
+async def unlike_post(
+    post_id: str,
+    user_id: Annotated[int, Depends(get_current_user_id)],
+):
+    return await social_controller.handle_unlike_post(user_id, post_id)
+
+
 @app.post(
     "/social/posts/{post_id}/comments",
     tags=["Posts"],
@@ -204,10 +229,12 @@ async def comment_post(
     tags=["Posts"],
 )
 async def delete_post_comment(
+    user_id: Annotated[int, Depends(get_current_user_id)],
     post_id: str,
     body: DeletePostCommentSchema = Body(...)
 ):
     return await social_controller.handle_delete_post_comment(
+        user_id,
         post_id,
         body.comment_id
     )

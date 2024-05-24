@@ -189,7 +189,7 @@ async def test_given_post_created_when_get_post_by_id_then_return_post_schema():
     post_id = res_create_post.id
 
     # When
-    res_get_post: PostSchema = await social_service.get_post(post_id)
+    res_get_post: PostSchema = await social_service.get_post(post_id, 0)
 
     # Then
     assert res_get_post.id == res_create_post.id
@@ -212,7 +212,7 @@ async def test_given_post_id_not_found_when_get_post_by_id_then_raise_not_found_
 
     # When
     with pytest.raises(ItemNotFound) as excinfo:
-        await social_service.get_post(post_id)
+        await social_service.get_post(post_id, 0)
 
     # Then
     assert str(excinfo.value) == "404: Post with id " + \
@@ -234,7 +234,7 @@ async def test_given_post_id_when_update_one_field_then_return_post_schema_with_
 
     # When
     res_update_post: PostSchema = await social_service.update_post(
-        post_id, input_post_to_update
+        0, post_id, input_post_to_update
     )
 
     # Then
@@ -267,7 +267,7 @@ async def test_given_post_id_when_update_photo_links_then_return_post_schema_wit
 
     # When
     res_update_post: PostSchema = await social_service.update_post(
-        post_id, input_post_to_update
+        0, post_id, input_post_to_update
     )
 
     # Then
@@ -290,7 +290,7 @@ async def test_given_post_id_when_update_tags_then_return_post_schema_with_new_t
 
     # When
     res_update_post: PostSchema = await social_service.update_post(
-        post_id, input_post_to_update
+        0, post_id, input_post_to_update
     )
 
     # Then
@@ -315,7 +315,7 @@ async def test_given_post_id_when_update_all_fields_then_return_post_schema_with
 
     # When
     res_update_post: PostSchema = await social_service.update_post(
-        post_id, input_post_to_update
+        0, post_id, input_post_to_update
     )
 
     # Then
@@ -937,6 +937,79 @@ async def test_given_social_user_without_tag_when_unsubscribe_to_tag_then_return
     assert res_unsubscribe is None
     res_get_user = await social_service.get_social_user(res_create_user.id)
     assert res_get_user.tags == ["tag1"]
+
+@pytest.mark.asyncio
+async def test_given_post_when_user_like_it_then_post_is_updated():
+    # Given
+    create_schema = PostCreateSchema(
+        author_user_id=1,
+        content="mock_post",
+        tags=[],
+        photo_links=[]
+    )
+    new_post = await social_service.create_post(create_schema)
+
+    # When
+    result = await social_service.like_post(5, new_post.id)
+
+    # Then
+    assert result == 1
+
+    # When
+    post = await social_service.get_post(new_post.id, 5)
+
+    # Then
+    assert post.liked_by_me
+    assert post.likes_count == 1
+    assert post.users_who_gave_like.index(5) == 0
+
+@pytest.mark.asyncio
+async def test_given_post_when_user_like_it_then_post_is_updated():
+    # Given
+    create_schema = PostCreateSchema(
+        author_user_id=1,
+        content="mock_post",
+        tags=[],
+        photo_links=[]
+    )
+    new_post = await social_service.create_post(create_schema)
+
+    # When
+    result = await social_service.like_post(5, new_post.id)
+
+    # Then
+    assert result == 1
+
+    # When
+    post = await social_service.get_post(new_post.id, 5)
+
+    # Then
+    assert post.liked_by_me
+    assert post.likes_count == 1
+    assert post.users_who_gave_like.index(5) == 0
+
+
+@pytest.mark.asyncio
+async def test_given_post_when_user_unlike_it_then_post_is_updated():
+    # Given
+    create_schema = PostCreateSchema(
+        author_user_id=1,
+        content="mock_post",
+        tags=[],
+        photo_links=[]
+    )
+    new_post = await social_service.create_post(create_schema)
+
+    # When
+    _ = await social_service.like_post(5, new_post.id)
+    _ = await social_service.unlike_post(5, new_post.id)
+    post = await social_service.get_post(new_post.id, 5)
+
+    # Then
+    assert not post.liked_by_me
+    assert post.likes_count == 0
+    assert len(post.users_who_gave_like) == 0
+
 async def test_given_post_when_commented_then_increase_comment_count():
     input_post = PostCreateSchema(
         author_user_id=1,
@@ -969,10 +1042,10 @@ async def test_given_post_when_deleted_comment_then_decrease_comment_count():
                                                                        "body")
 
     # When
-    await social_service.delete_post_comment(post_id, res_comment.id)
+    await social_service.delete_post_comment(1, post_id, res_comment.id)
 
     # Then
-    res_get_post: PostSchema = await social_service.get_post(post_id)
+    res_get_post: PostSchema = await social_service.get_post(post_id, 1)
     assert res_get_post.comments_count == 0
 
 

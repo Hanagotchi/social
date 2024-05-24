@@ -164,3 +164,37 @@ class SocialMongoDB(SocialRepository):
         if result is None:
             raise ItemNotFound("User", id_received)
         return result
+
+    @withMongoExceptionsHandle()
+    def like_post(self, user_id: int, post_id: str) -> Optional[int]:
+        result = self.posts_collection.update_one(
+            {"_id": ObjectId(post_id)}, {
+                "$addToSet": {"users_who_gave_like": user_id}
+            }
+        )
+
+        if result.modified_count == 1:
+            result = self.posts_collection.update_one(
+                {"_id": ObjectId(post_id)}, {
+                    "$inc": {"likes_count": 1}
+                }
+            )
+
+        return result.modified_count
+
+    @withMongoExceptionsHandle()
+    def unlike_post(self, user_id: int, post_id: str) -> Optional[int]:
+        result = self.posts_collection.update_one(
+            {"_id": ObjectId(post_id)}, {
+                "$pull": {"users_who_gave_like": {"$eq": user_id}}
+            }
+        )
+
+        if result.modified_count == 1:
+            result = self.posts_collection.update_one(
+                {"_id": ObjectId(post_id)}, {
+                    "$inc": {"likes_count": -1}
+                }
+            )
+
+        return result.modified_count

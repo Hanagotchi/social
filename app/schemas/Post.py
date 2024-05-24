@@ -57,6 +57,7 @@ class PostBaseModel(BaseModel):
     author: ReducedUser = Field(...)
     content: str = Field(..., max_length=512)
     likes_count: int = Field(default=0)
+    liked_by_me: bool = Field(default=False)
     created_at: datetime
     updated_at: datetime
     tags: Optional[list[TagType]] = None
@@ -66,6 +67,7 @@ class PostBaseModel(BaseModel):
 
 class PostSchema(PostBaseModel):
     photo_links: Optional[list[PhotoUrl]] = None
+    users_who_gave_like: list[int] = Field(default=[])
 
     class Config:
         arbitrary_types_allowed = True
@@ -167,6 +169,8 @@ class GetPostSchema(BaseModel):
     content: str = Field(..., max_length=512)
     photo_links: Optional[list[PhotoUrl]] = None
     likes_count: int = Field(default=0)
+    liked_by_me: bool = Field(default=False)
+    users_who_gave_like: list[int] = Field(default=[])
     created_at: datetime
     updated_at: datetime
     tags: Optional[list[TagType]] = None

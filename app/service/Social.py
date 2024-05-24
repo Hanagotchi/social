@@ -51,7 +51,7 @@ class SocialService:
         print("created w user: ", created_post)
         return PostSchema.model_validate(created_post)
 
-    async def get_post(self, id_post: int) -> PostSchema:
+    async def get_post(self, id_post: int, user_id: int) -> PostSchema:
         post: Post = self.social_repository.get_post(id_post)
         if post is None:
             raise ItemNotFound("Post", id_post)
@@ -59,7 +59,7 @@ class SocialService:
         get_user: GetUserSchema = await UserService.get_user(post["author_user_id"])
         user: ReducedUser = ReducedUser.from_pydantic(get_user)
         map_author_user_id(user, post)
-
+        check_if_user_liked_the_post(user_id, post)
         final_comments = []
 
         for comment in post['comments']:
@@ -77,6 +77,8 @@ class SocialService:
                     author=user,
                     content=post['content'],
                     likes_count=post['likes_count'],
+                    liked_by_me=post['liked_by_me'],
+                    users_who_gave_like=post['users_who_gave_like'],
                     photo_links=post['photo_links'],
                     created_at=post['created_at'],
                     updated_at=post['updated_at'],
@@ -87,13 +89,14 @@ class SocialService:
 
     async def update_post(
         self,
+        user_id: int,
         id_post: str,
         update_post_set: PostPartialUpdateSchema,
     ) -> Optional[PostSchema]:
         self.social_repository.update_post(
             id_post, update_post_set.model_dump_json(exclude_none=True)
         )
-        return await self.get_post(id_post)
+        return await self.get_post(id_post, user_id)
 
     def delete_post(self, id_post: str):
         row_count = self.social_repository.delete_post(id_post)
@@ -145,9 +148,9 @@ class SocialService:
                               users=following,
                               tags=None)
         print(f"[FILTERS]: {filters}")
-        return await self._get_all(filters)
+        return await self._get_all(filters, user_id)
 
-    async def _get_all(self, filters: PostFilters) -> List[PostSchema]:
+    async def _get_all(self, filters: PostFilters, user_id: int) -> List[PostSchema]:
         cursor = self.social_repository.get_posts_by(filters)
         fetched_posts = []
         users_ids_to_fetch = set()
@@ -167,12 +170,12 @@ class SocialService:
             users_fetched_hash[user.id] = user
 
         final_posts = []
-
         for post in fetched_posts:
             author_id = post["author_user_id"]
             get_user: GetUserSchema = await UserService.get_user(author_id)
             user: ReducedUser = ReducedUser.from_pydantic(get_user)
             map_author_user_id(user, post)
+            check_if_user_liked_the_post(user_id, post)
             valid_post = PostInFeedSchema.from_post(PostSchema.model_validate(post))
             final_posts.append(valid_post)
 
@@ -248,6 +251,16 @@ class SocialService:
             )
         )
 
+    async def like_post(self,
+                        user_id: int,
+                        post_id: str) -> Optional[int]:
+        return self.social_repository.like_post(user_id, post_id)
+
+    async def unlike_post(self,
+                          user_id: int,
+                          post_id: str) -> Optional[int]:
+        return self.social_repository.unlike_post(user_id, post_id)
+
     async def comment_post(self, post_id, author_id, comment_body) -> PostCommentSchema:
         post: Post = self.social_repository.get_post(post_id)
         if post is None:
@@ -264,10 +277,10 @@ class SocialService:
         comments_count = post["comments_count"] + 1
         updates = PostPartialUpdateSchema(comments=comments,
                                           comments_count=comments_count)
-        await self.update_post(post_id, updates)
+        await self.update_post(author_id, post_id, updates)
         return PostCommentSchema.model_validate(comment)
 
-    async def delete_post_comment(self, post_id, comment_id) -> str:
+    async def delete_post_comment(self, user_id, post_id, comment_id) -> str:
         post: Post = self.social_repository.get_post(post_id)
         if post is None:
             raise ItemNotFound("Post", post_id)
@@ -285,7 +298,7 @@ class SocialService:
         comments_count = post["comments_count"] - 1
         updates = PostPartialUpdateSchema(comments=comments,
                                           comments_count=comments_count)
-        await self.update_post(post_id, updates)
+        await self.update_post(user_id, post_id, updates)
         return comment_id
 
     async def get_user_followers(self,
@@ -331,3 +344,9 @@ def find_comment_by_id(post: Post, comment_id: str) -> Optional[PostCommentSchem
 def map_author_user_id(user, created_post):
     created_post["author"] = user
     created_post.pop("author_user_id")
+
+
+def check_if_user_liked_the_post(user_id: int, created_post: Post):
+    created_post["liked_by_me"] = any(
+        map(lambda id: id == user_id, created_post["users_who_gave_like"])
+    )

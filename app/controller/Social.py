@@ -30,19 +30,22 @@ class SocialController:
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(post)
         )
 
-    async def handle_get_post(self, id_post: str) -> JSONResponse:
-        post: PostSchema = await self.social_service.get_post(id_post)
+    async def handle_get_post(self, requestor_id: int, id_post: str) -> JSONResponse:
+        post: PostSchema = await self.social_service.get_post(
+            id_post, requestor_id
+        )
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(post)
         )
 
     async def handle_update_post(
         self,
+        user_id: int,
         id_post: str,
         update_post_set: PostPartialUpdateSchema,
     ) -> JSONResponse:
         post: Optional[PostSchema] = await self.social_service.update_post(
-            id_post, update_post_set
+            user_id, id_post, update_post_set
         )
 
         if post:
@@ -83,8 +86,9 @@ class SocialController:
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(user)
         )
 
-    async def handle_get_all(self, filters: PostFilters) -> JSONResponse:
-        list = await self.social_service._get_all(filters)
+    async def handle_get_all(
+            self, requestor_id: int, filters: PostFilters) -> JSONResponse:
+        list = await self.social_service._get_all(filters, requestor_id)
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(list)
         )
@@ -144,6 +148,41 @@ class SocialController:
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content="Tag unsubscribed successfully")
 
+    async def handle_like_post(
+        self,
+        user_id: int,
+        post_id: str,
+    ) -> JSONResponse:
+        result = await self.social_service.like_post(user_id, post_id)
+        if result is None or result == 0:
+            return JSONResponse(
+                status_code=status.HTTP_204_NO_CONTENT,
+                content=""
+            )
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content="Post liked successfully"
+        )
+
+    async def handle_unlike_post(
+        self,
+        user_id: int,
+        post_id: str,
+    ) -> JSONResponse:
+        result = await self.social_service.unlike_post(user_id, post_id)
+
+        if result is None or result == 0:
+            return JSONResponse(
+                status_code=status.HTTP_204_NO_CONTENT,
+                content=""
+            )
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content="Post unliked successfully"
+        )
+
     async def handle_comment_post(
         self,
         post_id: str,
@@ -162,11 +201,13 @@ class SocialController:
 
     async def handle_delete_post_comment(
         self,
+        user_id: int,
         post_id: str,
         comment_id: str,
     ) -> JSONResponse:
 
-        response = await self.social_service.delete_post_comment(post_id, comment_id)
+        response = await self.social_service.delete_post_comment(
+            user_id, post_id, comment_id)
 
         if (response is None):
             return Response(status_code=status.HTTP_204_NO_CONTENT)
