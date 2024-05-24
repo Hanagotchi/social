@@ -192,7 +192,6 @@ async def unsubscribe_to_tag(
     )
 
 
-
 @app.post("/social/posts/{post_id}/like", tags=["Posts"])
 async def like_post(
     post_id: str,
@@ -247,4 +246,3 @@ async def get_user_followers(
 ):
     return await social_controller.handle_get_user_followers(
         query_params.get_query_params())
-
