@@ -1,5 +1,6 @@
 from typing import Optional
 from app.schemas.Post import (
+    PostCommentSchema,
     PostCreateSchema,
     PostFilters,
     PostPagination,
@@ -142,3 +143,44 @@ class SocialController:
 
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content="Tag unsubscribed successfully")
+    async def handle_comment_post(
+        self,
+        post_id: str,
+        user_id: str,
+        comment: str,
+    ) -> JSONResponse:
+
+        comment: PostCommentSchema = await self.social_service.comment_post(
+            post_id,
+            user_id,
+            comment
+        )
+
+        return JSONResponse(status_code=status.HTTP_200_OK,
+                            content=jsonable_encoder(comment))
+
+    async def handle_delete_post_comment(
+        self,
+        post_id: str,
+        comment_id: str,
+    ) -> JSONResponse:
+
+        response = await self.social_service.delete_post_comment(post_id, comment_id)
+
+        if (response is None):
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+        return JSONResponse(status_code=status.HTTP_200_OK,
+                            content="Comment deleted successfully")
+
+    async def handle_get_user_followers(self, query_params: dict) -> JSONResponse:
+        followers = await self.social_service.get_user_followers(query_params)
+        if followers:
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content=jsonable_encoder(followers)
+            )
+        return JSONResponse(
+            status_code=status.HTTP_204_NO_CONTENT,
+            content=jsonable_encoder(followers)
+        )

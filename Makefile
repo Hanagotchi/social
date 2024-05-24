@@ -27,3 +27,6 @@ docker-compose-down:
 docker-compose-logs:
 	docker-compose -f docker-compose.yaml logs -f
 .PHONY: docker-compose-logs
+
+magic: docker-compose-down docker-compose-up docker-compose-logs
+.PHONY: magic

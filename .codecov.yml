@@ -1,7 +1,14 @@
-# .codecov.yml
+version: 2.0
+coverage:
+  status:
+    project:
+      default:
+        target: 85%
+    patch:
+      default:
+        target: 80%
 
-ignore:
-  # Excluir un archivo específico
-  - 'app/main.py'
-  - 'app/controller/Social.py'
-  - 'app/service/Users.py'
+# Disable the default strict coverage comparison with the base branch
+checks:
+  status: 
+    changes: false

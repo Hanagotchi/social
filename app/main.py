@@ -6,6 +6,8 @@ from app.service.Social import SocialService
 from typing import Annotated
 from app.repository.SocialMongo import SocialMongoDB
 from app.schemas.Post import (
+    CreatePostCommentSchema,
+    DeletePostCommentSchema,
     PostCreateSchema,
     PostFilters,
     PostPagination,
@@ -18,6 +20,7 @@ from app.schemas.SocialUser import (
     FollowUserSchema,
     TagSchema
 )
+from app.query_params.QueryParams import SociaFollowersQueryParams
 
 app = FastAPI(
     title="Social API",
@@ -178,3 +181,38 @@ async def unsubscribe_to_tag(
         user_id,
         tag
     )
+    "/social/posts/{post_id}/comments",
+    tags=["Post"],
+)
+async def comment_post(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+    post_id: str,
+    comment: CreatePostCommentSchema = Body(...)
+):
+    return await social_controller.handle_comment_post(
+        post_id,
+        user_id,
+        comment.body
+    )
+
+
+@app.delete(
+    "/social/posts/{post_id}/comments",
+    tags=["Post"],
+)
+async def delete_post_comment(
+    post_id: str,
+    body: DeletePostCommentSchema = Body(...)
+):
+    return await social_controller.handle_delete_post_comment(
+        post_id,
+        body.comment_id
+    )
+
+
+@app.get("/social/user", tags=["Social User"])
+async def get_user_followers(
+    query_params: SociaFollowersQueryParams = Depends(SociaFollowersQueryParams)
+):
+    return await social_controller.handle_get_user_followers(
+        query_params.get_query_params())

@@ -10,16 +10,32 @@ TagType = Annotated[str, Field(..., min_length=2,
                                pattern=r"^[a-zA-Z0-9_]*$")]
 
 
+class PostCommentSchema(BaseModel):
+    id: str = Field(...)
+    author: int = Field(..., example=1)
+    content: str = Field(..., max_length=512)
+    created_at: datetime
+
+
+class CreatePostCommentSchema(BaseModel):
+    body: str
+
+
+class DeletePostCommentSchema(BaseModel):
+    comment_id: str
+
+
 class PostCreateSchema(BaseModel):
     author_user_id: int = Field(..., example=1)
     content: str = Field(..., max_length=512)
     tags: Optional[list[TagType]] = None
     photo_links: Optional[list[PhotoUrl]] = None
+    comments: list[PostCommentSchema] = []
 
     class Config:
         json_schema_extra = {
             "example": {
-                "author_user_id": 1,
+                "author_user_id": 17,
                 "content": (
                     "Mi buena petuña es hermosa. "
                     "Crece, crece y crece, "
@@ -30,6 +46,8 @@ class PostCreateSchema(BaseModel):
                     "https://example.com/photo2.jpg",
                 ],
                 "tags": ["petuñas", "mandarinas"],
+                "comments": [],
+                "comments_count": 0
             }
         }
 
@@ -42,6 +60,8 @@ class PostBaseModel(BaseModel):
     created_at: datetime
     updated_at: datetime
     tags: Optional[list[TagType]] = None
+    comments: list[PostCommentSchema] = []
+    comments_count: int = Field(default=0)
 
 
 class PostSchema(PostBaseModel):
@@ -52,7 +72,7 @@ class PostSchema(PostBaseModel):
         json_schema_extra = {
             "example": {
                 "id": 1,
-                "author_user_id": 1,
+                "author": 17,
                 "content": (
                     "Mi buena petuña es hermosa. "
                     "Crece, crece y crece, "
@@ -66,14 +86,15 @@ class PostSchema(PostBaseModel):
                     "https://example.com/photo1.jpg",
                     "https://example.com/photo2.jpg",
                 ],
+                "comments": [{
+                    "id": "fdfe6218-64f7-4f89-af36-42b8b035f4c8",
+                    "author": 11,
+                    "content": "bien ahi!!",
+                    "created_at": "2024-04-16T05:35:30.127Z"
+                }],
+                "comments_count": 1
             }
         }
-        # datetime.now(
-        #                         ZoneInfo("America/Argentina/Buenos_Aires")
-        #                     ).isoformat()[:-6]
-        # json_encoders = {datetime: lambda v: datetime.now(
-        #                         ZoneInfo("America/Argentina/Buenos_Aires")
-        #                     ).isoformat()[:-6]}
 
 
 class PostInFeedSchema(PostBaseModel):
@@ -84,7 +105,7 @@ class PostInFeedSchema(PostBaseModel):
         json_schema_extra = {
             "example": {
                 "id": 1,
-                "author_user_id": 1,
+                "author_user_id": 17,
                 "content": (
                     "Mi buena petuña es hermosa. "
                     "Crece, crece y crece, "
@@ -95,6 +116,8 @@ class PostInFeedSchema(PostBaseModel):
                 "updated_at": "2021-08-08T20:00:00",
                 "tags": ["petuñas", "mandarinas"],
                 "main_photo_link": "https://example.com/photo1.jpg",
+                "comments": [],
+                "comments_count": 0
             }
         }
 
@@ -111,6 +134,8 @@ class PostPartialUpdateSchema(BaseModel):
     content: Optional[str] = Field(None, max_length=512)
     tags: Optional[list[TagType]] = None
     photo_links: Optional[list[PhotoUrl]] = None
+    comments: Optional[list[PostCommentSchema]] = None
+    comments_count: Optional[int] = None
 
     class Config:
         json_schema_extra = {
@@ -124,9 +149,29 @@ class PostPartialUpdateSchema(BaseModel):
                 "photo_links": [
                     "https://example.com/photo5520.jpg",
                     "https://example.com/photo123.jpg",
-                ],
+                ]
             }
         }
+
+
+class GetPostCommentSchema(BaseModel):
+    id: str = Field(...)
+    author: ReducedUser = Field(...)
+    content: str = Field(..., max_length=512)
+    created_at: datetime
+
+
+class GetPostSchema(BaseModel):
+    id: str = Field(...)
+    author: ReducedUser = Field(...)
+    content: str = Field(..., max_length=512)
+    photo_links: Optional[list[PhotoUrl]] = None
+    likes_count: int = Field(default=0)
+    created_at: datetime
+    updated_at: datetime
+    tags: Optional[list[Tag]] = None
+    comments: list[GetPostCommentSchema] = []
+    comments_count: int = Field(default=0)
 
 
 class PostPagination(BaseModel):
