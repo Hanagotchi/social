@@ -3,7 +3,7 @@ from typing import Optional
 from bson import ObjectId
 from pydantic import Field
 from app.models.base import Base, PyObjectId
-from app.schemas.Post import PostCreateSchema
+from app.schemas.Post import PostCommentSchema, PostCreateSchema
 from datetime import datetime
 
 
@@ -19,6 +19,8 @@ class Post(Base):
     updated_at: Optional[datetime]
     tags: list[str] = []
     photo_links: list[str] = []
+    comments: Optional[list[PostCommentSchema]]
+    comments_count: int = Field(default=0)
 
     class Config:
         allow_population_by_field_name = False
@@ -41,4 +43,5 @@ class Post(Base):
             updated_at=None,
             tags=pydantic_obj.tags if pydantic_obj.tags else [],
             photo_links=pydantic_obj.photo_links if pydantic_obj.photo_links else [],
+            comments=[]
         )

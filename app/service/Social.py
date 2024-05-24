@@ -1,9 +1,14 @@
+from datetime import datetime
 import logging
-from typing import List, Optional
+import uuid
+from typing import List, Optional, Dict, Any
 from app.models.Post import Post
 from app.repository.SocialRepository import SocialRepository
-from app.service.Users import UserService
+from app.external.Users import UserService
 from app.schemas.Post import (
+    GetPostCommentSchema,
+    GetPostSchema,
+    PostCommentSchema,
     PostCreateSchema,
     PostFilters,
     PostInFeedSchema,
@@ -40,19 +45,47 @@ class SocialService:
         user: ReducedUser = ReducedUser.from_pydantic(get_user)
         post = Post.from_pydantic(input_post)
         id_post = self.social_repository.add_post(post)
-        crated_post = self.social_repository.get_post(id_post)
-        map_author_user_id(user, crated_post)
-        return PostSchema.model_validate(crated_post)
+        created_post = self.social_repository.get_post(id_post)
+        print("created: ", created_post)
+        map_author_user_id(user, created_post)
+        print("created w user: ", created_post)
+        return PostSchema.model_validate(created_post)
 
     async def get_post(self, id_post: int, user_id: int) -> PostSchema:
         post: Post = self.social_repository.get_post(id_post)
         if post is None:
             raise ItemNotFound("Post", id_post)
+
         get_user: GetUserSchema = await UserService.get_user(post["author_user_id"])
         user: ReducedUser = ReducedUser.from_pydantic(get_user)
         map_author_user_id(user, post)
         check_if_user_liked_the_post(user_id, post)
-        return PostSchema.model_validate(post)
+        final_comments = []
+
+        for comment in post['comments']:
+            get_user: GetUserSchema = await UserService.get_user(comment['author'])
+            author: ReducedUser = ReducedUser.from_pydantic(get_user)
+            valid_comment = GetPostCommentSchema(id=comment['id'],
+                                                 author=author,
+                                                 content=comment['content'],
+                                                 created_at=comment['created_at']
+                                                 )
+            final_comments.append(valid_comment)
+
+        return GetPostSchema(
+                    id=post['id'],
+                    author=user,
+                    content=post['content'],
+                    likes_count=post['likes_count'],
+                    liked_by_me=post['liked_by_me'],
+                    users_who_gave_like=post['users_who_gave_like'],
+                    photo_links=post['photo_links'],
+                    created_at=post['created_at'],
+                    updated_at=post['updated_at'],
+                    tags=post['tags'],
+                    comments=final_comments,
+                    comments_count=post['comments_count']
+                )
 
     async def update_post(
         self,
@@ -139,7 +172,7 @@ class SocialService:
         final_posts = []
         for post in fetched_posts:
             author_id = post["author_user_id"]
-            get_user: GetUserSchema = users_fetched_hash.get(author_id)
+            get_user: GetUserSchema = await UserService.get_user(author_id)
             user: ReducedUser = ReducedUser.from_pydantic(get_user)
             map_author_user_id(user, post)
             check_if_user_liked_the_post(user_id, post)
@@ -228,10 +261,89 @@ class SocialService:
                           post_id: str) -> Optional[int]:
         return self.social_repository.unlike_post(user_id, post_id)
 
+    async def comment_post(self, post_id, author_id, comment_body) -> PostCommentSchema:
+        post: Post = self.social_repository.get_post(post_id)
+        if post is None:
+            raise ItemNotFound("Post", post_id)
 
-def map_author_user_id(user, crated_post):
-    crated_post["author"] = user
-    crated_post.pop("author_user_id")
+        comment: PostCommentSchema = {
+            "id": str(uuid.uuid4()),
+            "author": author_id,
+            "content": comment_body,
+            "created_at": datetime.now()
+        }
+        comments = post["comments"]
+        comments.append(comment)
+        comments_count = post["comments_count"] + 1
+        updates = PostPartialUpdateSchema(comments=comments,
+                                          comments_count=comments_count)
+        await self.update_post(author_id, post_id, updates)
+        return PostCommentSchema.model_validate(comment)
+
+    async def delete_post_comment(self, user_id, post_id, comment_id) -> str:
+        post: Post = self.social_repository.get_post(post_id)
+        if post is None:
+            raise ItemNotFound("Post", post_id)
+
+        comment = find_comment_by_id(post, comment_id)
+
+        if comment is None:
+            return None
+
+        comments = post["comments"]
+        for comment in comments:
+            if comment["id"] == comment_id:
+                comments.remove(comment)
+
+        comments_count = post["comments_count"] - 1
+        updates = PostPartialUpdateSchema(comments=comments,
+                                          comments_count=comments_count)
+        await self.update_post(user_id, post_id, updates)
+        return comment_id
+
+    async def get_user_followers(self,
+                                 query_params: Dict[str, Any]) -> List[UserSchema]:
+        user_id = query_params.get('user_id')
+        query = query_params.get('query', '')
+
+        if not user_id:
+            raise BadRequestException("User ID is required")
+
+        followers = self.social_repository.get_followers_of(user_id)
+        if not followers:
+            return []
+
+        if query:
+            followers_details = await UserService.get_users(followers)
+            filtered_followers = [
+                follower for follower in followers_details
+                if follower.nickname.startswith(query)
+            ]
+        else:
+            filtered_followers = await UserService.get_users(followers)
+
+        followers_data = [
+            UserSchema(
+                _id=follower.id,
+                name=follower.name,
+                photo=follower.photo,
+                nickname=follower.nickname
+            ) for follower in filtered_followers
+        ]
+
+        return followers_data
+
+
+def find_comment_by_id(post: Post, comment_id: str) -> Optional[PostCommentSchema]:
+    for comment in post["comments"]:
+        if comment["id"] == comment_id:
+            return comment
+    return None
+
+
+def map_author_user_id(user, created_post):
+    created_post["author"] = user
+    created_post.pop("author_user_id")
 
 
 def check_if_user_liked_the_post(user_id: int, created_post: Post):
