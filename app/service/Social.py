@@ -251,6 +251,10 @@ class SocialService:
             )
         )
 
+    async def get_subscribed_tags(self, user_id) -> List[str]:
+        social_user = self.social_repository.get_social_user(user_id)
+        return social_user["tags"]
+
     async def like_post(self,
                         user_id: int,
                         post_id: str) -> Optional[int]:

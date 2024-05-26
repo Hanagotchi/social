@@ -1148,3 +1148,18 @@ async def test_get_user_followers_no_user_id():
         await social_service.get_user_followers(query_params)
 
     assert str(excinfo.value) == "400: Bad request: user id is required"
+
+
+@pytest.mark.asyncio
+async def test_given_social_user_when_get_tags_then_return_user_subscriptions():
+    # Given
+    input_user = SocialUserCreateSchema(id=1)
+    user = await social_service.create_social_user(input_user)
+    tag = TagSchema(tag="tag1")
+    await social_service.subscribe_to_tag(user.id, tag)
+
+    # When
+    response = await social_service.get_subscribed_tags(user.id)
+
+    # Then
+    assert response.tags == ["tag1"]

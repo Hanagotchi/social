@@ -189,7 +189,17 @@ async def unsubscribe_to_tag(
     return await social_controller.handle_unsubscribe_to_tag(
         user_id,
         tag
-    )
+    )   
+
+
+@app.get(
+    "/social/users/tags",
+    tags=["Social User"],
+)
+async def get_subscribed_tags(
+    user_id: Annotated[int, Depends(get_current_user_id)],
+):
+    return await social_controller.handle_get_subscribed_tags(user_id)
 
 
 @app.post("/social/posts/{post_id}/like", tags=["Posts"])
