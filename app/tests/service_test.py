@@ -1010,6 +1010,7 @@ async def test_given_post_when_user_unlike_it_then_post_is_updated():
     assert post.likes_count == 0
     assert len(post.users_who_gave_like) == 0
 
+
 async def test_given_post_when_commented_then_increase_comment_count():
     input_post = PostCreateSchema(
         author_user_id=1,
@@ -1062,7 +1063,7 @@ async def test_get_user_followers_with_no_query(monkeypatch):
                         AsyncMock(return_value=followers_ids))
 
     with patch("app.external.Users.UserService.get_users", return_value=[follower_1,
-                                                                        follower_2]):
+                                                                         follower_2]):
         # When
         result = await social_service.get_user_followers({"user_id": user_id})
 
@@ -1162,4 +1163,5 @@ async def test_given_social_user_when_get_tags_then_return_user_subscriptions():
     response = await social_service.get_subscribed_tags(user.id)
 
     # Then
-    assert response.tags == ["tag1"]
+    print(response)
+    assert response == ["tag1"]

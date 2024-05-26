@@ -197,7 +197,7 @@ async def unsubscribe_to_tag(
     return await social_controller.handle_unsubscribe_to_tag(
         user_id,
         tag
-    )   
+    )
 
 
 @app.post("/social/posts/{post_id}/like", tags=["Posts"])
