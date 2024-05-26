@@ -164,6 +164,14 @@ async def unfollow_social_user(
     )
 
 
+@app.get(
+    "/social/users/me/tags",
+    tags=["Social User"],
+)
+async def get_subscribed_tags(user_id: Annotated[int, Depends(get_current_user_id)]):
+    return await social_controller.handle_get_subscribed_tags(user_id)
+
+
 @app.post(
     "/social/users/tags/subscribe",
     tags=["Social User"],
@@ -190,16 +198,6 @@ async def unsubscribe_to_tag(
         user_id,
         tag
     )   
-
-
-@app.get(
-    "/social/users/tags",
-    tags=["Social User"],
-)
-async def get_subscribed_tags(
-    user_id: Annotated[int, Depends(get_current_user_id)],
-):
-    return await social_controller.handle_get_subscribed_tags(user_id)
 
 
 @app.post("/social/posts/{post_id}/like", tags=["Posts"])
@@ -254,5 +252,6 @@ async def delete_post_comment(
 async def get_user_followers(
     query_params: SociaFollowersQueryParams = Depends(SociaFollowersQueryParams)
 ):
+    print("pepeeeeeeeee")
     return await social_controller.handle_get_user_followers(
         query_params.get_query_params())
