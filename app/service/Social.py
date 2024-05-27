@@ -228,7 +228,7 @@ class SocialService:
         tags = social_user["tags"]
         if tag_schema.tag in tags:
             return None
-        tags.append(tag_schema.tag.lower())
+        tags.append(tag_schema.tag)
         return self.social_repository.update_user(
             user_id,
             UserPartialUpdateSchema(tags=tags).model_dump_json(
@@ -243,7 +243,7 @@ class SocialService:
         tags = social_user["tags"]
         if tag_schema.tag not in tags:
             return None
-        tags.remove(tag_schema.tag.lower())
+        tags.remove(tag_schema.tag)
         return self.social_repository.update_user(
             user_id,
             UserPartialUpdateSchema(tags=tags).model_dump_json(

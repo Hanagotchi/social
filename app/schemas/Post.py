@@ -6,8 +6,8 @@ from datetime import datetime
 PhotoUrl = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
 
 TagType = Annotated[str, Field(..., min_length=2,
-                               max_length=128,
-                               pattern=r"^[a-zA-Z0-9_]*$")]
+                               max_frame=128,
+                               pattern=r"^[a-zA-Z0-9_ñÑ]*$")]
 
 
 class PostCommentSchema(BaseModel):
