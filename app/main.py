@@ -132,7 +132,7 @@ async def get_all_posts(
             pagination=PostPagination(
                 time_offset=time_offset, page=page, per_page=per_page
             ),
-            tags=tag if tag else None,
+            tags=tag.lower() if tag else None,
             users=[author] if author else None,
         ),
     )
