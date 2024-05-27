@@ -252,6 +252,5 @@ async def delete_post_comment(
 async def get_user_followers(
     query_params: SociaFollowersQueryParams = Depends(SociaFollowersQueryParams)
 ):
-    print("pepeeeeeeeee")
     return await social_controller.handle_get_user_followers(
         query_params.get_query_params())
