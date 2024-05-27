@@ -164,6 +164,14 @@ async def unfollow_social_user(
     )
 
 
+@app.get(
+    "/social/users/me/tags",
+    tags=["Social User"],
+)
+async def get_subscribed_tags(user_id: Annotated[int, Depends(get_current_user_id)]):
+    return await social_controller.handle_get_subscribed_tags(user_id)
+
+
 @app.post(
     "/social/users/tags/subscribe",
     tags=["Social User"],

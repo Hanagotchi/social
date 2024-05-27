@@ -148,6 +148,11 @@ class SocialController:
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content="Tag unsubscribed successfully")
 
+    async def handle_get_subscribed_tags(self, user_id: int) -> JSONResponse:
+        result = await self.social_service.get_subscribed_tags(user_id)
+        return JSONResponse(status_code=status.HTTP_200_OK,
+                            content=jsonable_encoder(result))
+
     async def handle_like_post(
         self,
         user_id: int,
