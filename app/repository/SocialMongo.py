@@ -134,7 +134,8 @@ class SocialMongoDB(SocialRepository):
         return following
 
     @withMongoExceptionsHandle()
-    def get_followers_of(self, user_id: int, offset: int, limit: int) -> List[int]:
+    def get_followers_of(self, user_id: int, offset: int = 0,
+                         limit: int = 200) -> List[int]:
         followers = list(
             self.users_collection.find({"_id": user_id}, {"followers": 1, "_id": 0})
         )

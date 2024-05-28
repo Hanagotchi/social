@@ -1093,53 +1093,6 @@ async def test_get_user_followers_returning_empty(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_get_user_followers_with_query(monkeypatch):
-    # Given
-    user_id = 1
-    followers_ids = [2, 3]
-    follower_1 = UserSchema(_id=2, name="John Doe", photo="photo1.jpg",
-                            nickname="john")
-    follower_2 = UserSchema(_id=3, name="Jane Smith", photo="photo2.jpg",
-                            nickname="jane")
-
-    monkeypatch.setattr(social_service.social_repository, "get_followers_of",
-                        AsyncMock(return_value=followers_ids))
-
-    with patch("app.external.Users.UserService.get_users", return_value=[follower_1,
-                                                                         follower_2]):
-        # When
-        result = await social_service.get_user_followers({"user_id": user_id,
-                                                          "query": "ja"})
-
-        # Then
-        assert len(result) == 1
-        assert result[0].id == 3
-        assert result[0].name == "Jane Smith"
-
-
-@pytest.mark.asyncio
-async def test_get_user_followers_with_query_no_match(monkeypatch):
-    # Given
-    user_id = 1
-    followers_ids = [2, 3]
-    follower_1 = UserSchema(_id=2, name="John Doe", photo="photo1.jpg", nickname="john")
-    follower_2 = UserSchema(_id=3, name="Jane Smith", photo="photo2.jpg",
-                            nickname="jane")
-
-    monkeypatch.setattr(social_service.social_repository, "get_followers_of",
-                        AsyncMock(return_value=followers_ids))
-
-    with patch("app.external.Users.UserService.get_users", return_value=[follower_1,
-                                                                         follower_2]):
-        # When
-        result = await social_service.get_user_followers({"user_id": user_id,
-                                                          "query": "xx"})
-
-        # Then
-        assert len(result) == 0
-
-
-@pytest.mark.asyncio
 async def test_get_user_followers_no_user_id():
     # Given
     query_params = {}

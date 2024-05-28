@@ -164,7 +164,9 @@ class SocialService:
             return []
 
         users_fetched_hash = {}
-        users_fetched_list = await UserService.get_users(list(users_ids_to_fetch))
+        users_fetched_list = await UserService.get_users({
+            "ids": str(users_ids_to_fetch)[1:-1]
+            })
 
         for user in users_fetched_list:
             users_fetched_hash[user.id] = user
@@ -315,7 +317,8 @@ class SocialService:
         if not user_id:
             raise BadRequestException("User ID is required")
 
-        followers = self.social_repository.get_followers_of(user_id, offset, limit)
+        followers = await self.social_repository.get_followers_of(user_id, offset,
+                                                                  limit)
         if not followers:
             return []
 
