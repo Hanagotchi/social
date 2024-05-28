@@ -307,24 +307,26 @@ class SocialService:
 
     async def get_user_followers(self,
                                  query_params: Dict[str, Any]) -> List[UserSchema]:
-        user_id = query_params.get('user_id')
-        query = query_params.get('query', '')
+        offset = query_params.get('offset')
+        limit = query_params.get('limit')
+        user_id = query_params.get('user_id', None)
+        nickname = query_params.get('query', None)
 
         if not user_id:
             raise BadRequestException("User ID is required")
 
-        followers = self.social_repository.get_followers_of(user_id)
+        followers = self.social_repository.get_followers_of(user_id, offset, limit)
         if not followers:
             return []
 
-        if query:
-            followers_details = await UserService.get_users(followers)
-            filtered_followers = [
-                follower for follower in followers_details
-                if follower.nickname.startswith(query)
-            ]
-        else:
-            filtered_followers = await UserService.get_users(followers)
+        user_query_params = {
+            'ids': ','.join(map(str, followers)),
+            'offset': offset,
+            'limit': limit,
+            'nickname': nickname
+        }
+
+        filtered_followers = await UserService.get_users(user_query_params)
 
         followers_data = [
             UserSchema(
@@ -336,6 +338,27 @@ class SocialService:
         ]
 
         return followers_data
+
+    async def get_users(self, query_params: dict):
+        offset = query_params.get("offset")
+        limit = query_params.get("limit")
+        nickname = query_params.get("query", None)
+
+        user_query_params = {
+            'offset': offset,
+            'limit': limit,
+            'nickname': nickname
+        }
+
+        users = await UserService.get_users(user_query_params)
+        return [
+            UserSchema(
+                _id=user.id,
+                name=user.name,
+                photo=user.photo,
+                nickname=user.nickname
+            ) for user in users
+        ]
 
 
 def find_comment_by_id(post: Post, comment_id: str) -> Optional[PostCommentSchema]:

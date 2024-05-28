@@ -231,3 +231,15 @@ class SocialController:
             status_code=status.HTTP_204_NO_CONTENT,
             content=jsonable_encoder(followers)
         )
+
+    async def handle_get_users(self, query_params: dict) -> JSONResponse:
+        users = await self.social_service.get_users(query_params)
+        if users:
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content=jsonable_encoder(users)
+            )
+        return JSONResponse(
+            status_code=status.HTTP_204_NO_CONTENT,
+            content=jsonable_encoder(users)
+        )
