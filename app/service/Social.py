@@ -317,8 +317,7 @@ class SocialService:
         if not user_id:
             raise BadRequestException("User ID is required")
 
-        followers = await self.social_repository.get_followers_of(user_id, offset,
-                                                                  limit)
+        followers = self.social_repository.get_followers_of(user_id, offset, limit)
         if not followers:
             return []
 
