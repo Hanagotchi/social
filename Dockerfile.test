@@ -20,4 +20,4 @@ COPY app/tests/ tests/
 
 COPY . .
 
-CMD ["poetry", "run", "pytest", "app"]
+CMD ["poetry", "run", "pytest", "--cov=app/service"]
