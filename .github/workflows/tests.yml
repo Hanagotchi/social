@@ -50,6 +50,7 @@ jobs:
       - name: Run tests
         run: |
           source .venv/bin/activate
+          pytest app/
           pytest --cov=app/service app/ --cov-report=xml > pytest-coverage.txt
         env:
           USERS_SERVICE_URL: dummy:5000
