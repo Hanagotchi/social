@@ -7,7 +7,7 @@ PhotoUrl = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
 
 TagType = Annotated[str, Field(..., min_length=2,
                                max_length=128,
-                               pattern=r"^[a-zA-Z0-9_]*$")]
+                               pattern=r"^[a-zA-Z0-9_ñÑ]*$")]
 
 
 class PostCommentSchema(BaseModel):
