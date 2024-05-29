@@ -938,30 +938,6 @@ async def test_given_social_user_without_tag_when_unsubscribe_to_tag_then_return
     res_get_user = await social_service.get_social_user(res_create_user.id)
     assert res_get_user.tags == ["tag1"]
 
-@pytest.mark.asyncio
-async def test_given_post_when_user_like_it_then_post_is_updated():
-    # Given
-    create_schema = PostCreateSchema(
-        author_user_id=1,
-        content="mock_post",
-        tags=[],
-        photo_links=[]
-    )
-    new_post = await social_service.create_post(create_schema)
-
-    # When
-    result = await social_service.like_post(5, new_post.id)
-
-    # Then
-    assert result == 1
-
-    # When
-    post = await social_service.get_post(new_post.id, 5)
-
-    # Then
-    assert post.liked_by_me
-    assert post.likes_count == 1
-    assert post.users_who_gave_like.index(5) == 0
 
 @pytest.mark.asyncio
 async def test_given_post_when_user_like_it_then_post_is_updated():
