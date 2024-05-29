@@ -50,8 +50,7 @@ jobs:
       - name: Run tests
         run: |
           source .venv/bin/activate
-          pytest app/
-          pytest --cov=app/service app/ --cov-report=xml > pytest-coverage.txt
+          pytest --cov=app/service app/ --cov-report=xml
         env:
           USERS_SERVICE_URL: dummy:5000
 
@@ -72,9 +71,12 @@ jobs:
 
       - name: Check coverage
         run: |
-          COVERAGE=$(grep -o 'coverage rate: [0-9]*\.[0-9]*' ./coverage/codecov_report.txt | grep -o '[0-9]*\.[0-9]*')
+          source .venv/bin/activate
+          COVERAGE=$(coverage report | grep 'TOTAL' | awk '{print $4}' | sed 's/%//')
           echo "Coverage: $COVERAGE%"
           if (( $(echo "$COVERAGE < 85" | bc -l) )); then
             echo "Coverage is below 85%!"
             exit 1
           fi
+        env:
+          USERS_SERVICE_URL: dummy:5000
