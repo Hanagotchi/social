@@ -324,11 +324,25 @@ class SocialService:
         user_query_params = {
             'ids': ','.join(map(str, followers)),
             'offset': offset,
-            'limit': limit,
-            'nickname': nickname
+            'limit': limit
         }
 
         filtered_followers = await UserService.get_users(user_query_params)
+
+        if nickname:
+            user_query_params['nickname'] = nickname
+            del user_query_params['ids']
+            filtered_by_nickname = await UserService.get_users(user_query_params)
+
+            ids_filtered_followers = {follower.id for follower in filtered_followers}
+            ids_filtered_by_nickname = {user.id for user in filtered_by_nickname}
+
+            intersection_ids = ids_filtered_followers & ids_filtered_by_nickname
+
+            filtered_followers = [
+                user for user in filtered_followers
+                if user.id in intersection_ids
+                ]
 
         followers_data = [
             UserSchema(
