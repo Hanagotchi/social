@@ -2,10 +2,9 @@ coverage:
   status:
     project:
       default:
-        target: 80%
-        threshold: 1%
+        target: 85%
+        threshold: 0.01%
 
-# Disable the default strict coverage comparison with the base branch
 checks:
-  status: 
+  status:
     changes: false
