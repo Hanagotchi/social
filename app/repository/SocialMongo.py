@@ -104,7 +104,7 @@ class SocialMongoDB(SocialRepository):
     @withMongoExceptionsHandle()
     def get_posts_by(self, filters: PostFilters) -> List[Post]:
         pipeline = [
-            {"$match": {"updated_at": {"$lte": filters.pagination.time_offset}}}
+            {"$match": {"created_at": {"$lte": filters.pagination.time_offset}}}
         ]
         if filters.tags:
             pipeline.append({"$match": {"tags": filters.tags}})
@@ -112,7 +112,7 @@ class SocialMongoDB(SocialRepository):
             pipeline.append({"$match": {"author_user_id": {"$in": filters.users}}})
 
         pipeline += [
-            {"$sort": {"updated_at": -1}},  # sort by updated_at desc
+            {"$sort": {"created_at": -1}},  # sort by updated_at desc
             {"$skip": (filters.pagination.page - 1) * filters.pagination.per_page},
             {"$limit": filters.pagination.per_page},
         ]
