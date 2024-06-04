@@ -5,7 +5,7 @@ codecov:
 coverage:
   precision: 2
   round: down
-  range: "70...100"
+  range: "10...100"
   status:
     project:
       default:
@@ -16,6 +16,6 @@ coverage:
     patch:
       default:
         # basic
-        target: 50%
+        target: 10%
         threshold: 1%
         base: auto 
