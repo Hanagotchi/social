@@ -1,14 +1,21 @@
+codecov:
+  notify:
+    require_ci_to_pass: no
+
 coverage:
-  range: 50..90 # coverage lower than 50 is red, higher than 90 green, between color code
-
+  precision: 2
+  round: down
+  range: "70...100"
   status:
-    project: # settings affecting project coverage
-      enabled: yes
-      target: auto # auto % coverage target
-      threshold: 46%  # allow for 5% reduction of coverage without failing
-
-    # do not run coverage on patch nor changes
+    project:
+      default:
+        # basic
+        target: auto
+        threshold: 1%
+        base: auto 
     patch:
       default:
-        enabled: false
-    changes: no
+        # basic
+        target: 50%
+        threshold: 1%
+        base: auto 
