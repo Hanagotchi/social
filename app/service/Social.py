@@ -164,7 +164,9 @@ class SocialService:
             return []
 
         users_fetched_hash = {}
-        users_fetched_list = await UserService.get_users(list(users_ids_to_fetch))
+        users_fetched_list = await UserService.get_users({
+            "ids": str(users_ids_to_fetch)[1:-1]
+            })
 
         for user in users_fetched_list:
             users_fetched_hash[user.id] = user
@@ -307,24 +309,40 @@ class SocialService:
 
     async def get_user_followers(self,
                                  query_params: Dict[str, Any]) -> List[UserSchema]:
-        user_id = query_params.get('user_id')
-        query = query_params.get('query', '')
+        offset = query_params.get('offset')
+        limit = query_params.get('limit')
+        user_id = query_params.get('user_id', None)
+        nickname = query_params.get('query', None)
 
         if not user_id:
             raise BadRequestException("User ID is required")
 
-        followers = self.social_repository.get_followers_of(user_id)
+        followers = self.social_repository.get_followers_of(user_id, offset, limit)
         if not followers:
             return []
 
-        if query:
-            followers_details = await UserService.get_users(followers)
+        user_query_params = {
+            'ids': ','.join(map(str, followers)),
+            'offset': offset,
+            'limit': limit
+        }
+
+        filtered_followers = await UserService.get_users(user_query_params)
+
+        if nickname:
+            user_query_params['nickname'] = nickname
+            del user_query_params['ids']
+            filtered_by_nickname = await UserService.get_users(user_query_params)
+
+            ids_filtered_followers = {follower.id for follower in filtered_followers}
+            ids_filtered_by_nickname = {user.id for user in filtered_by_nickname}
+
+            intersection_ids = ids_filtered_followers & ids_filtered_by_nickname
+
             filtered_followers = [
-                follower for follower in followers_details
-                if follower.nickname.startswith(query)
-            ]
-        else:
-            filtered_followers = await UserService.get_users(followers)
+                user for user in filtered_followers
+                if user.id in intersection_ids
+                ]
 
         followers_data = [
             UserSchema(
@@ -336,6 +354,27 @@ class SocialService:
         ]
 
         return followers_data
+
+    async def get_users(self, query_params: dict):
+        offset = query_params.get("offset")
+        limit = query_params.get("limit")
+        nickname = query_params.get("query", None)
+
+        user_query_params = {
+            'offset': offset,
+            'limit': limit,
+            'nickname': nickname
+        }
+
+        users = await UserService.get_users(user_query_params)
+        return [
+            UserSchema(
+                _id=user.id,
+                name=user.name,
+                photo=user.photo,
+                nickname=user.nickname
+            ) for user in users
+        ]
 
 
 def find_comment_by_id(post: Post, comment_id: str) -> Optional[PostCommentSchema]:

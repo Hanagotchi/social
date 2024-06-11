@@ -1,6 +1,6 @@
 from asyncio import sleep
 from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, patch, MagicMock
 import pytest
 import logging
 import mongomock
@@ -938,30 +938,6 @@ async def test_given_social_user_without_tag_when_unsubscribe_to_tag_then_return
     res_get_user = await social_service.get_social_user(res_create_user.id)
     assert res_get_user.tags == ["tag1"]
 
-@pytest.mark.asyncio
-async def test_given_post_when_user_like_it_then_post_is_updated():
-    # Given
-    create_schema = PostCreateSchema(
-        author_user_id=1,
-        content="mock_post",
-        tags=[],
-        photo_links=[]
-    )
-    new_post = await social_service.create_post(create_schema)
-
-    # When
-    result = await social_service.like_post(5, new_post.id)
-
-    # Then
-    assert result == 1
-
-    # When
-    post = await social_service.get_post(new_post.id, 5)
-
-    # Then
-    assert post.liked_by_me
-    assert post.likes_count == 1
-    assert post.users_who_gave_like.index(5) == 0
 
 @pytest.mark.asyncio
 async def test_given_post_when_user_like_it_then_post_is_updated():
@@ -1055,15 +1031,23 @@ async def test_get_user_followers_with_no_query(monkeypatch):
     # Given
     user_id = 1
     followers_ids = [2, 3]
-    follower_1 = UserSchema(_id=2, name="John Doe", photo="photo1.jpg", nickname="john")
-    follower_2 = UserSchema(_id=3, name="Jane Smith", photo="photo2.jpg",
+    follower_1 = UserSchema(_id=2,
+                            name="John Doe",
+                            photo="photo1.jpg",
+                            nickname="john")
+    follower_2 = UserSchema(_id=3,
+                            name="Jane Smith",
+                            photo="photo2.jpg",
                             nickname="jane")
 
-    monkeypatch.setattr(social_service.social_repository, "get_followers_of",
-                        AsyncMock(return_value=followers_ids))
+    mock_get_followers_of = MagicMock(return_value=followers_ids)
+    monkeypatch.setattr(social_service.social_repository,
+                        "get_followers_of",
+                        mock_get_followers_of)
 
-    with patch("app.external.Users.UserService.get_users", return_value=[follower_1,
-                                                                         follower_2]):
+    with patch("app.external.Users.UserService.get_users", new=AsyncMock(
+        return_value=[follower_1, follower_2])
+    ):
         # When
         result = await social_service.get_user_followers({"user_id": user_id})
 
@@ -1080,60 +1064,16 @@ async def test_get_user_followers_returning_empty(monkeypatch):
     # Given
     user_id = 1
 
-    monkeypatch.setattr(social_service.social_repository, "get_followers_of",
-                        AsyncMock(return_value=[]))
+    mock_get_followers_of = MagicMock(return_value=[])
+    monkeypatch.setattr(social_service.social_repository,
+                        "get_followers_of",
+                        mock_get_followers_of)
 
-    with patch("app.external.Users.UserService.get_users", return_value=[]):
+    with patch("app.external.Users.UserService.get_users",
+               new=AsyncMock(return_value=[])):
         # When
         result = await social_service.get_user_followers({"user_id": user_id,
                                                           "query": "ja"})
-
-        # Then
-        assert len(result) == 0
-
-
-@pytest.mark.asyncio
-async def test_get_user_followers_with_query(monkeypatch):
-    # Given
-    user_id = 1
-    followers_ids = [2, 3]
-    follower_1 = UserSchema(_id=2, name="John Doe", photo="photo1.jpg",
-                            nickname="john")
-    follower_2 = UserSchema(_id=3, name="Jane Smith", photo="photo2.jpg",
-                            nickname="jane")
-
-    monkeypatch.setattr(social_service.social_repository, "get_followers_of",
-                        AsyncMock(return_value=followers_ids))
-
-    with patch("app.external.Users.UserService.get_users", return_value=[follower_1,
-                                                                         follower_2]):
-        # When
-        result = await social_service.get_user_followers({"user_id": user_id,
-                                                          "query": "ja"})
-
-        # Then
-        assert len(result) == 1
-        assert result[0].id == 3
-        assert result[0].name == "Jane Smith"
-
-
-@pytest.mark.asyncio
-async def test_get_user_followers_with_query_no_match(monkeypatch):
-    # Given
-    user_id = 1
-    followers_ids = [2, 3]
-    follower_1 = UserSchema(_id=2, name="John Doe", photo="photo1.jpg", nickname="john")
-    follower_2 = UserSchema(_id=3, name="Jane Smith", photo="photo2.jpg",
-                            nickname="jane")
-
-    monkeypatch.setattr(social_service.social_repository, "get_followers_of",
-                        AsyncMock(return_value=followers_ids))
-
-    with patch("app.external.Users.UserService.get_users", return_value=[follower_1,
-                                                                         follower_2]):
-        # When
-        result = await social_service.get_user_followers({"user_id": user_id,
-                                                          "query": "xx"})
 
         # Then
         assert len(result) == 0

@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
         
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -48,9 +50,34 @@ jobs:
       - name: Run tests
         run: |
           source .venv/bin/activate
-          pytest --cov=app/service
+          pytest app/
+          pytest --cov=app/service app/ --cov-report=xml --cov-report=term-missing
         env:
           USERS_SERVICE_URL: dummy:5000
-        
-      - name: Upload to codecov
-        run: bash <(curl -s https://codecov.io/bash)
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          directory: ./coverage/reports/
+          flags: unittests
+          env_vars: OS,PYTHON
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          path_to_write_report: ./coverage/codecov_report.txt
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Check coverage
+        run: |
+          source .venv/bin/activate
+          COVERAGE=$(coverage report | grep 'TOTAL' | awk '{print $4}' | sed 's/%//')
+          echo "Coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 85" | bc -l) )); then
+            echo "Coverage is below 85%!"
+            exit 1
+          fi
+        env:
+          USERS_SERVICE_URL: dummy:5000

@@ -20,7 +20,10 @@ from app.schemas.SocialUser import (
     FollowUserSchema,
     TagSchema
 )
-from app.query_params.QueryParams import SociaFollowersQueryParams
+from app.query_params.QueryParams import (
+    SocialFollowersQueryParams,
+    SocialUsersQueryParams
+)
 
 
 app = FastAPI(
@@ -248,9 +251,17 @@ async def delete_post_comment(
     )
 
 
-@app.get("/social/user", tags=["Social User"])
+@app.get("/social/user/followers", tags=["Social User"])
 async def get_user_followers(
-    query_params: SociaFollowersQueryParams = Depends(SociaFollowersQueryParams)
+    query_params: SocialFollowersQueryParams = Depends(SocialFollowersQueryParams)
 ):
     return await social_controller.handle_get_user_followers(
+        query_params.get_query_params())
+
+
+@app.get("/social/user", tags=["Social User"])
+async def get_users(
+    query_params: SocialUsersQueryParams = Depends(SocialUsersQueryParams)
+):
+    return await social_controller.handle_get_users(
         query_params.get_query_params())

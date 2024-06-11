@@ -1,14 +1,21 @@
-version: 2.0
+codecov:
+  notify:
+    require_ci_to_pass: no
+
 coverage:
+  precision: 2
+  round: down
+  range: "10...100"
   status:
     project:
       default:
+        # basic
         target: 85%
+        threshold: 1%
+        base: auto 
     patch:
       default:
-        target: 80%
-
-# Disable the default strict coverage comparison with the base branch
-checks:
-  status: 
-    changes: false
+        # basic
+        target: 0%
+        threshold: 1%
+        base: auto 

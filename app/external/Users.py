@@ -46,14 +46,16 @@ class UserService:
             raise InternalServerErrorException("User service")
 
     @staticmethod
-    async def get_users(users_ids_to_fetch: list) -> list:
+    async def get_users(query_params: dict) -> list:
         try:
-            path = f"/users?ids={','.join(map(str, users_ids_to_fetch))}"
-            print(f"[PATH]: {path}")
+            query_string = '&'.join([f"{k}={v}" for k, v in query_params.items() if v])
+            path = f"/users?{query_string}"
             response = await UserService.get(path)
             if response.status_code == 200:
                 users = response.json()["message"]
                 return [GetUserSchema(**user) for user in users]
+            elif response.status_code == 204:
+                return []
             else:
                 raise InternalServerErrorException("User service")
         except Exception as e:
