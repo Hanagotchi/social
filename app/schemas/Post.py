@@ -33,7 +33,7 @@ class PostCreateSchema(BaseModel):
     comments: list[PostCommentSchema] = []
 
     class Config:
-        json_schema_extra = {
+        json_json_schema_extra = {
             "example": {
                 "author_user_id": 17,
                 "content": (
@@ -71,7 +71,7 @@ class PostSchema(PostBaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-        json_schema_extra = {
+        json_json_schema_extra = {
             "example": {
                 "id": 1,
                 "author": 17,
@@ -104,7 +104,7 @@ class PostInFeedSchema(PostBaseModel):
 
     class Config:
         arbitrary_types_allowed = True
-        json_schema_extra = {
+        json_json_schema_extra = {
             "example": {
                 "id": 1,
                 "author_user_id": 17,
@@ -140,7 +140,7 @@ class PostPartialUpdateSchema(BaseModel):
     comments_count: Optional[int] = None
 
     class Config:
-        json_schema_extra = {
+        json_json_schema_extra = {
             "example": {
                 "content": (
                     "Mi buena petuña es hermosa. "

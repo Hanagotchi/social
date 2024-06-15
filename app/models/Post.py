@@ -23,7 +23,7 @@ class Post(Base):
     comments_count: int = Field(default=0)
 
     class Config:
-        allow_population_by_field_name = False
+        populate_by_name = False
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
 
