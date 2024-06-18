@@ -18,7 +18,7 @@ class SocialUser(Base):
     tags: list[str] = []
 
     class Config:
-        allow_population_by_field_name = False
+        populate_by_name = False
         arbitrary_types_allowed = True
 
     def __repr__(self) -> str:
